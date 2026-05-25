@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roots &amp; Routes — A Game of Human Migration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a5c;
+  --parchment:#f4edd4;
+  --gold:#c9a84c;
+  --gold-light:#e8c96a;
+  --forest:#2d6a4f;
+  --danger:#e63946;
+  --steel:#457b9d;
+  --amber:#d4813a;
+  --teal:#2a9d8f;
+  --cream:#fdf8ef;
+  --ink:#1c1c2e;
+  --muted-navy:#162d48;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Source Serif 4',serif;
+  background:var(--navy);
+  color:var(--parchment);
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,0.2)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+#gameContainer{
+  display:grid;
+  grid-template-rows:56px 1fr 180px;
+  grid-template-columns:1fr;
+  height:100vh;
+  width:100vw;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ---- TOP BAR ---- */
+#topBar{
+  background:linear-gradient(90deg,#0f2238 0%,#1a3a5c 40%,#0f2238 100%);
+  border-bottom:2px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:relative;
+  z-index:10;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+#topBar::before,#topBar::after{
+  content:'';
+  position:absolute;
+  top:50%;transform:translateY(-50%);
+  width:40px;height:2px;
+  background:var(--gold);
+  opacity:0.5;
+}
+#topBar::before{left:200px}
+#topBar::after{right:200px}
+
+.game-title{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  font-weight:900;
+  color:var(--gold);
+  letter-spacing:2px;
+  text-shadow:0 0 20px rgba(201,168,76,0.4);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.game-subtitle{
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.6);
+  font-style:italic;
+  display:block;
+  margin-top:-4px;
+}
+.top-meta{
+  display:flex;
+  gap:24px;
+  align-items:center;
+}
+.meta-badge{
+  text-align:center;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(201,168,76,0.3);
+  border-radius:6px;
+  padding:4px 12px;
+}
+.meta-badge .label{
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.6);
+  display:block;
+}
+.meta-badge .value{
+  font-family:'Playfair Display',serif;
+  font-size:18px;
+  font-weight:700;
+  color:var(--gold);
+}
+#phaseIndicator{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--parchment);
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(201,168,76,0.4);
+  border-radius:20px;
+  padding:4px 14px;
+  transition:all 0.3s;
+}
+
+/* ---- MAIN AREA ---- */
+#mainArea{
+  display:grid;
+  grid-template-columns:220px 1fr 220px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ---- SIDE PANELS ---- */
+.sidePanel{
+  background:linear-gradient(180deg,rgba(10,25,44,0.95) 0%,rgba(15,34,56,0.95) 100%);
+  border-right:1px solid rgba(201,168,76,0.2);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:hidden;
+  position:relative;
+}
+#botPanel{
+  border-right:none;
+  border-left:1px solid rgba(201,168,76,0.2);
+}
+.panel-header{
+  font-family:'Playfair Display',serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--gold);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  border-bottom:1px solid rgba(201,168,76,0.3);
+  padding-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.player-avatar{
+  font-size:24px;
+  width:44px;height:44px;
+  background:rgba(201,168,76,0.1);
+  border:2px solid var(--gold);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.player-name{
+  font-family:'Playfair Display',serif;
+  font-size:15px;
+  font-weight:700;
+  color:var(--parchment);
+}
+.player-country{
+  font-size:11px;
+  color:rgba(244,237,212,0.6);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.stat-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  letter-spacing:0.5px;
+}
+.stat-label{color:rgba(201,168,76,0.7);text-transform:uppercase;letter-spacing:1px}
+.stat-value{
+  font-family:'Playfair Display',serif;
+  font-size:16px;
+  font-weight:700;
+  color:var(--parchment);
+}
+
+/* Stability Bar */
+.stability-container{position:relative}
+.stability-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:rgba(201,168,76,0.6);
+  margin-bottom:4px;
+}
+.stability-track{
+  height:10px;
+  background:rgba(0,0,0,0.4);
+  border-radius:5px;
+  border:1px solid rgba(201,168,76,0.2);
+  overflow:hidden;
+  position:relative;
+}
+.stability-fill{
+  height:100%;
+  border-radius:5px;
+  transition:width 0.6s cubic-bezier(0.4,0,0.2,1),background 0.6s;
+  background:linear-gradient(90deg,#2d6a4f,#52b788);
+  position:relative;
+}
+.stability-fill::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.2) 50%,transparent 100%);
+  animation:shimmer 2s infinite;
+}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* Tokens */
+.tokens-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.token{
+  width:24px;height:24px;
+  background:rgba(201,168,76,0.1);
+  border:2px solid rgba(201,168,76,0.3);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.token.earned{
+  background:radial-gradient(circle,#e8c96a,#c9a84c);
+  border-color:var(--gold-light);
+  box-shadow:0 0 10px rgba(201,168,76,0.6);
+  animation:tokenBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes tokenBounce{
+  0%{transform:scale(0) rotate(-180deg)}
+  100%{transform:scale(1) rotate(0deg)}
+}
+
+/* Countries visited */
+.visited-list{
+  font-size:10px;
+  color:rgba(244,237,212,0.5);
+  letter-spacing:0.5px;
+  max-height:60px;
+  overflow-y:auto;
+  line-height:1.8;
+}
+
+/* ---- MAP CONTAINER ---- */
+#mapContainer{
+  position:relative;
+  overflow:hidden;
+  background:#0d2137;
+}
+#worldMap{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* ---- BOTTOM PANEL ---- */
+#bottomPanel{
+  background:linear-gradient(180deg,#0a1929 0%,#0f2238 100%);
+  border-top:2px solid var(--gold);
+  display:grid;
+  grid-template-columns:1fr 400px 1fr;
+  gap:0;
+  padding:0;
+  position:relative;
+  overflow:hidden;
+}
+.bottom-section{
+  padding:12px 16px;
+  border-right:1px solid rgba(201,168,76,0.15);
+}
+.bottom-section:last-child{border-right:none}
+.section-title{
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.6);
+  margin-bottom:8px;
+  font-family:'Playfair Display',serif;
+}
+
+/* Card Display */
+#cardArea{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  align-items:flex-start;
+  min-height:120px;
+  padding:8px 0;
+}
+.card{
+  width:130px;
+  min-height:110px;
+  border-radius:8px;
+  padding:10px;
+  position:relative;
+  cursor:default;
+  transform-style:preserve-3d;
+  transition:transform 0.6s;
+  flex-shrink:0;
+}
+.card.flipping{animation:cardFlip 0.6s ease-in-out}
+@keyframes cardFlip{
+  0%{transform:rotateY(0deg)}
+  50%{transform:rotateY(90deg)}
+  100%{transform:rotateY(0deg)}
+}
+.card-push{
+  background:linear-gradient(135deg,#2d0a0f,#5c1a1a);
+  border:1px solid var(--danger);
+  box-shadow:0 0 15px rgba(230,57,70,0.3);
+}
+.card-obstacle{
+  background:linear-gradient(135deg,#0f1a2d,#1a3a5c);
+  border:1px solid var(--steel);
+  box-shadow:0 0 15px rgba(69,123,157,0.3);
+}
+.card-pull{
+  background:linear-gradient(135deg,#1a2d0f,#2d4f1a);
+  border:1px solid var(--forest);
+  box-shadow:0 0 15px rgba(45,106,79,0.3);
+}
+.card-type-tag{
+  font-size:8px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  opacity:0.7;
+  margin-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.card-icon{font-size:18px;margin-bottom:4px}
+.card-title{
+  font-family:'Playfair Display',serif;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.3;
+  margin-bottom:4px;
+  color:var(--parchment);
+}
+.card-effect{
+  font-size:9px;
+  color:rgba(244,237,212,0.7);
+  line-height:1.4;
+}
+.card-hug-badge{
+  position:absolute;
+  bottom:6px;right:6px;
+  font-size:7px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:rgba(201,168,76,0.2);
+  border:1px solid rgba(201,168,76,0.4);
+  border-radius:3px;
+  padding:1px 4px;
+  color:var(--gold);
+}
+
+/* Action Buttons */
+#actionArea{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  justify-content:center;
+  align-items:center;
+  padding:12px 16px;
+}
+.phase-desc{
+  font-size:11px;
+  text-align:center;
+  color:rgba(244,237,212,0.7);
+  line-height:1.5;
+  max-width:300px;
+  font-style:italic;
+}
+.btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn{
+  font-family:'Playfair Display',serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:8px 18px;
+  border-radius:6px;
+  border:none;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-transform:uppercase;
+  position:relative;
+  overflow:hidden;
+}
+.btn::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,0);
+  transition:background 0.2s;
+}
+.btn:hover::after{background:rgba(255,255,255,0.1)}
+.btn:active{transform:scale(0.97)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),#a67c00);
+  color:#1a1a1a;
+  box-shadow:0 4px 15px rgba(201,168,76,0.3);
+}
+.btn-secondary{
+  background:transparent;
+  color:var(--gold);
+  border:1px solid var(--gold);
+}
+.btn-danger{
+  background:linear-gradient(135deg,var(--danger),#9b1f28);
+  color:white;
+  box-shadow:0 4px 15px rgba(230,57,70,0.3);
+}
+.btn-success{
+  background:linear-gradient(135deg,var(--forest),#1f4f38);
+  color:white;
+  box-shadow:0 4px 15px rgba(45,106,79,0.3);
+}
+.btn:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none}
+
+/* Destination grid */
+#destGrid{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:center;
+  max-width:100%;
+}
+.dest-btn{
+  font-size:11px;
+  padding:6px 10px;
+  border-radius:4px;
+  border:1px solid rgba(69,123,157,0.5);
+  background:rgba(69,123,157,0.1);
+  color:var(--parchment);
+  cursor:pointer;
+  transition:all 0.2s;
+  font-family:'Source Serif 4',serif;
+}
+.dest-btn:hover{
+  background:rgba(69,123,157,0.3);
+  border-color:var(--steel);
+  transform:translateY(-1px);
+}
+
+/* Game Log */
+#gameLog{
+  position:absolute;
+  bottom:190px;
+  right:230px;
+  width:200px;
+  max-height:180px;
+  background:rgba(5,15,28,0.85);
+  border:1px solid rgba(201,168,76,0.2);
+  border-radius:8px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  z-index:5;
+  backdrop-filter:blur(8px);
+}
+.log-header{
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  padding:6px 10px;
+  border-bottom:1px solid rgba(201,168,76,0.2);
+  background:rgba(0,0,0,0.3);
+}
+#logEntries{
+  flex:1;
+  overflow-y:auto;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.log-entry{
+  font-size:10px;
+  color:rgba(244,237,212,0.75);
+  line-height:1.4;
+  padding:2px 4px;
+  border-radius:3px;
+  animation:logSlide 0.3s ease-out;
+}
+@keyframes logSlide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.log-push{color:#ff8b94}
+.log-pull{color:#90e0a0}
+.log-obstacle{color:#90c0e0}
+.log-system{color:rgba(201,168,76,0.8)}
+
+/* ============================================================
+   MAP SVG ELEMENTS
+   ============================================================ */
+.continent{
+  fill:#e8dfc0;
+  stroke:#b8a87a;
+  stroke-width:0.5;
+  opacity:0.85;
+  filter:url(#paperTexture);
+}
+.ocean-bg{fill:#0d2137}
+.grid-line{stroke:rgba(201,168,76,0.12);stroke-width:0.4;fill:none}
+
+/* Route lines */
+.route-line{
+  stroke:rgba(201,168,76,0.25);
+  stroke-width:1;
+  stroke-dasharray:4 4;
+  fill:none;
+  animation:dashFlow 2s linear infinite;
+}
+@keyframes dashFlow{to{stroke-dashoffset:-8}}
+
+/* Country nodes */
+.country-node-group{cursor:pointer}
+.country-node{
+  fill:none;
+  stroke-width:2;
+  transition:all 0.3s;
+}
+.node-origin{stroke:var(--amber)}
+.node-destination{stroke:var(--teal)}
+.node-inner{
+  transition:all 0.3s;
+}
+.node-inner-origin{fill:rgba(212,129,58,0.3)}
+.node-inner-destination{fill:rgba(42,157,143,0.3)}
+.node-glow{
+  fill:none;
+  stroke-width:3;
+  opacity:0;
+  animation:pulse 2s ease-in-out infinite;
+}
+.node-glow-origin{stroke:var(--amber)}
+.node-glow-destination{stroke:var(--teal)}
+@keyframes pulse{
+  0%,100%{opacity:0;r:10}
+  50%{opacity:0.4;r:14}
+}
+.node-label{
+  font-family:'Source Serif 4',serif;
+  font-size:7.5px;
+  fill:var(--parchment);
+  text-anchor:middle;
+  pointer-events:none;
+  font-weight:600;
+  letter-spacing:0.3px;
+  text-shadow:0 1px 3px #000;
+}
+.node-label-bg{
+  fill:rgba(0,0,0,0.5);
+  rx:2;ry:2;
+}
+
+/* Player/Bot presence rings */
+.presence-ring{
+  fill:none;
+  stroke-width:2.5;
+  animation:presencePulse 1.5s ease-in-out infinite;
+}
+@keyframes presencePulse{
+  0%,100%{opacity:0.8;r:13}
+  50%{opacity:0.3;r:17}
+}
+
+/* Migration dot */
+#migrationDot{
+  fill:var(--gold);
+  filter:drop-shadow(0 0 4px var(--gold));
+  r:5;
+  opacity:0;
+}
+#migrationDotBot{
+  fill:#90e0e0;
+  filter:drop-shadow(0 0 4px #90e0e0);
+  r:5;
+  opacity:0;
+}
+
+/* Compass rose */
+.compass-rose{opacity:0.6}
+
+/* ============================================================
+   STABILITY COLORS
+   ============================================================ */
+.stab-high{background:linear-gradient(90deg,#2d6a4f,#52b788)!important}
+.stab-mid{background:linear-gradient(90deg,#8b6914,#c9a84c)!important}
+.stab-low{background:linear-gradient(90deg,#7a1c1c,#e63946)!important}
+
+/* ============================================================
+   OVERLAYS & MODALS
+   ============================================================ */
+#flashOverlay{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:100;
+  opacity:0;
+  transition:opacity 0.15s;
+}
+.flash-red{background:rgba(230,57,70,0.15)}
+.flash-gold{background:rgba(201,168,76,0.15)}
+
+/* Particle Canvas */
+#particleCanvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:90;
+}
+
+/* Game Over Screen */
+#gameOverScreen{
+  position:fixed;
+  inset:0;
+  background:rgba(10,20,35,0.97);
+  z-index:200;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  padding:40px;
+  animation:fadeInScreen 1s ease-in-out;
+}
+@keyframes fadeInScreen{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+.over-title{
+  font-family:'Playfair Display',serif;
+  font-size:48px;
+  font-weight:900;
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:8px;
+  text-shadow:0 0 40px rgba(201,168,76,0.5);
+}
+.over-subtitle{
+  font-size:16px;
+  color:rgba(244,237,212,0.7);
+  text-align:center;
+  font-style:italic;
+  margin-bottom:32px;
+}
+.over-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  width:100%;
+  max-width:900px;
+  margin-bottom:28px;
+}
+.over-card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(201,168,76,0.3);
+  border-radius:12px;
+  padding:20px;
+}
+.over-card-title{
+  font-family:'Playfair Display',serif;
+  font-size:16px;
+  font-weight:700;
+  color:var(--gold);
+  margin-bottom:12px;
+  border-bottom:1px solid rgba(201,168,76,0.2);
+  padding-bottom:8px;
+}
+.concept-entry{
+  margin-bottom:12px;
+  padding:8px;
+  background:rgba(201,168,76,0.05);
+  border-left:2px solid var(--gold);
+  border-radius:0 4px 4px 0;
+}
+.concept-name{
+  font-family:'Playfair Display',serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--gold-light);
+  margin-bottom:2px;
+}
+.concept-def{
+  font-size:11px;
+  color:rgba(244,237,212,0.7);
+  line-height:1.5;
+}
+
+/* Concepts sidebar */
+#conceptsSidebar{
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:32px;
+  background:rgba(10,25,44,0.9);
+  border-right:1px solid rgba(201,168,76,0.15);
+  z-index:6;
+  transition:width 0.3s;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+#conceptsSidebar.open{width:220px}
+#conceptsToggle{
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  transform:rotate(180deg);
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  padding:12px 8px;
+  cursor:pointer;
+  white-space:nowrap;
+  align-self:flex-start;
+  transition:opacity 0.3s;
+}
+#conceptsSidebar.open #conceptsToggle{
+  writing-mode:horizontal-tb;
+  transform:none;
+  font-size:10px;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(201,168,76,0.2);
+  width:100%;
+}
+#conceptsList{
+  padding:8px;
+  overflow-y:auto;
+  flex:1;
+  display:none;
+}
+#conceptsSidebar.open #conceptsList{display:block}
+.concept-tag{
+  font-size:9px;
+  padding:4px 6px;
+  background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.2);
+  border-radius:4px;
+  margin-bottom:4px;
+  color:var(--gold-light);
+  letter-spacing:0.5px;
+}
+
+/* Bot thinking indicator */
+#botThinking{
+  display:none;
+  position:absolute;
+  bottom:8px;right:8px;
+  background:rgba(0,0,0,0.8);
+  border:1px solid rgba(69,123,157,0.4);
+  border-radius:20px;
+  padding:4px 10px;
+  font-size:10px;
+  color:var(--steel);
+  z-index:10;
+}
+#botThinking.active{display:flex;align-items:center;gap:4px}
+.thinking-dots span{
+  display:inline-block;
+  animation:thinkDot 1.2s ease-in-out infinite;
+  font-size:14px;
+  line-height:1;
+}
+.thinking-dots span:nth-child(2){animation-delay:0.2s}
+.thinking-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes thinkDot{0%,80%,100%{transform:translateY(0);opacity:0.3}40%{transform:translateY(-3px);opacity:1}}
+
+/* Start screen */
+#startScreen{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse at center,#1a3a5c 0%,#0a1929 100%);
+  z-index:300;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:40px;
+}
+.start-title{
+  font-family:'Playfair Display',serif;
+  font-size:56px;
+  font-weight:900;
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:6px;
+  text-shadow:0 0 60px rgba(201,168,76,0.4);
+  letter-spacing:3px;
+}
+.start-subtitle{
+  font-size:14px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.6);
+  text-align:center;
+  margin-bottom:8px;
+  font-style:italic;
+}
+.start-intro{
+  max-width:520px;
+  text-align:center;
+  color:rgba(244,237,212,0.75);
+  font-size:13px;
+  line-height:1.7;
+  margin-bottom:32px;
+  font-style:italic;
+}
+.country-select-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:24px;
+  max-width:500px;
+  width:100%;
+}
+.country-option{
+  background:rgba(201,168,76,0.06);
+  border:1px solid rgba(201,168,76,0.25);
+  border-radius:8px;
+  padding:12px;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.2s;
+  position:relative;
+}
+.country-option:hover,.country-option.selected{
+  background:rgba(201,168,76,0.15);
+  border-color:var(--gold);
+  box-shadow:0 0 15px rgba(201,168,76,0.2);
+}
+.country-option.selected::after{
+  content:'✓';
+  position:absolute;
+  top:4px;right:6px;
+  color:var(--gold);
+  font-size:10px;
+}
+.country-flag{font-size:22px;display:block;margin-bottom:4px}
+.country-label{
+  font-family:'Playfair Display',serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--parchment);
+}
+.country-region{
+  font-size:9px;
+  color:rgba(244,237,212,0.5);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.select-prompt{
+  font-size:12px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.7);
+  margin-bottom:12px;
+  font-family:'Playfair Display',serif;
+}
+
+/* Decorative divider */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:rgba(201,168,76,0.4);
+  font-size:12px;
+  width:100%;
+  max-width:400px;
+  margin:16px 0;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);
+}
+
+/* Noise texture overlay for aged paper feel */
+#mapContainer::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  opacity:0.4;
+  mix-blend-mode:overlay;
+  z-index:1;
+}
+
+/* Responsive */
+@media(max-width:900px){
+  #mainArea{grid-template-columns:180px 1fr 180px}
+  .sidePanel{padding:10px}
+  .start-title{font-size:36px}
+}
+</style>
+</head>
+<body>
+
+<!-- Start Screen -->
+<div id="startScreen">
+  <div class="start-title">Roots &amp; Routes</div>
+  <div class="start-subtitle">A Game of Human Migration</div>
+  <div class="divider">✦</div>
+  <p class="start-intro">
+    You are a migrant. The world pushes and pulls. Survive the journey,
+    settle in a new land, and earn your place. Compete against ARIA —
+    the Automated Refugee Intelligence Agent — as you both navigate
+    the real forces that drive human migration.
+  </p>
+  <div class="select-prompt">Choose Your Origin Country</div>
+  <div class="country-select-grid" id="countrySelectGrid"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="startBtn" disabled onclick="startGame()">Begin Journey →</button>
+  </div>
+  <div style="margin-top:16px;font-size:10px;color:rgba(201,168,76,0.4);letter-spacing:2px;text-transform:uppercase">
+    AP Human Geography — Migration Unit
+  </div>
+</div>
+
+<!-- Game Over Screen -->
+<div id="gameOverScreen">
+  <div class="over-title" id="overTitle">Victory!</div>
+  <div class="over-subtitle" id="overSubtitle"></div>
+  <div class="over-grid" id="overGrid"></div>
+  <div style="max-width:700px;width:100%;margin-bottom:24px">
+    <div class="over-card-title" style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);margin-bottom:12px">
+      Migration Patterns Demonstrated
+    </div>
+    <p id="overSummary" style="font-size:13px;color:rgba(244,237,212,0.8);line-height:1.8"></p>
+  </div>
+  <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+</div>
+
+<!-- Flash Overlay -->
+<div id="flashOverlay"></div>
+
+<!-- Particle Canvas -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- Game Container -->
+<div id="gameContainer">
+
+  <!-- Top Bar -->
+  <header id="topBar">
+    <div>
+      <div class="game-title">⚓ Roots &amp; Routes</div>
+      <div class="game-subtitle">A Game of Human Migration</div>
+    </div>
+    <div class="top-meta">
+      <div class="meta-badge">
+        <span class="label">Turn</span>
+        <span class="value" id="turnDisplay">1</span>
+      </div>
+      <div id="phaseIndicator">Setup</div>
+      <div class="meta-badge">
+        <span class="label">Max</span>
+        <span class="value">20</span>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.5)">AP HuG</div>
+      <div style="font-family:'Playfair Display',serif;font-size:13px;color:var(--gold)">Migration Unit</div>
+    </div>
+  </header>
+
+  <!-- Main Area -->
+  <main id="mainArea">
+
+    <!-- Player Panel -->
+    <aside class="sidePanel" id="playerPanel">
+      <div class="panel-header">🧳 Your Journey</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="player-avatar" id="playerAvatar">🧑</div>
+        <div>
+          <div class="player-name">You</div>
+          <div class="player-country" id="playerCountry">—</div>
+        </div>
+      </div>
+      <div class="stability-container">
+        <div class="stability-label">
+          <span>Stability</span>
+          <span id="playerStabNum">5/10</span>
+        </div>
+        <div class="stability-track">
+          <div class="stability-fill stab-high" id="playerStabBar" style="width:50%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="stat-row">
+          <span class="stat-label">Settlement Tokens</span>
+        </div>
+        <div class="tokens-row" id="playerTokens">
+          <div class="token" id="pt0">☆</div>
+          <div class="token" id="pt1">☆</div>
+          <div class="token" id="pt2">☆</div>
+        </div>
+      </div>
+      <div>
+        <div class="stat-row" style="margin-bottom:4px">
+          <span class="stat-label">Turns Here</span>
+          <span class="stat-value" id="playerTurnsHere">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Countries</span>
+          <span class="stat-value" id="playerVisitedCount">1</span>
+        </div>
+      </div>
+      <div>
+        <div class="stat-label" style="margin-bottom:4px">Visited</div>
+        <div class="visited-list" id="playerVisitedList">—</div>
+      </div>
+    </aside>
+
+    <!-- Map Container -->
+    <div id="mapContainer">
+
+      <!-- Concepts Sidebar -->
+      <div id="conceptsSidebar">
+        <div id="conceptsToggle" onclick="toggleConcepts()">Concepts ▸</div>
+        <div id="conceptsList"></div>
+      </div>
+
+      <!-- World Map SVG -->
+      <svg id="worldMap" viewBox="0 0 1000 510" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- Paper texture filter -->
+          <filter id="paperTexture" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+            <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+            <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blend"/>
+            <feComponentTransfer in="blend">
+              <feFuncR type="linear" slope="0.95" intercept="0.05"/>
+              <feFuncG type="linear" slope="0.92" intercept="0.04"/>
+              <feFuncB type="linear" slope="0.82" intercept="0.02"/>
+            </feComponentTransfer>
+          </filter>
+          <!-- Glow filter -->
+          <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- Amber glow -->
+          <filter id="amberGlow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feColorMatrix type="matrix" values="2 1 0 0 0  1 0.5 0 0 0  0 0 0 0 0  0 0 0 1 0" in="blur" result="colored"/>
+            <feMerge><feMergeNode in="colored"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- Teal glow -->
+          <filter id="tealGlow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0.5 1 0.8 0 0  0 0.5 1 0 0  0 0 0 1 0" in="blur" result="colored"/>
+            <feMerge><feMergeNode in="colored"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- Route gradient -->
+          <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:rgba(212,129,58,0.4)"/>
+            <stop offset="100%" style="stop-color:rgba(42,157,143,0.4)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Ocean background -->
+        <rect width="1000" height="510" class="ocean-bg"/>
+
+        <!-- Latitude/Longitude grid (subtle) -->
+        <!-- Latitude lines at 60°N, 30°N, 0°, 30°S, 60°S -->
+        <g class="grid-lines">
+          <line x1="0" y1="83" x2="1000" y2="83" class="grid-line"/>
+          <line x1="0" y1="167" x2="1000" y2="167" class="grid-line"/>
+          <line x1="0" y1="250" x2="1000" y2="250" class="grid-line"/>
+          <line x1="0" y1="333" x2="1000" y2="333" class="grid-line"/>
+          <line x1="0" y1="417" x2="1000" y2="417" class="grid-line"/>
+          <!-- Longitude lines every 60° -->
+          <line x1="167" y1="0" x2="167" y2="510" class="grid-line"/>
+          <line x1="333" y1="0" x2="333" y2="510" class="grid-line"/>
+          <line x1="500" y1="0" x2="500" y2="510" class="grid-line"/>
+          <line x1="667" y1="0" x2="667" y2="510" class="grid-line"/>
+          <line x1="833" y1="0" x2="833" y2="510" class="grid-line"/>
+          <!-- Equator emphasis -->
+          <line x1="0" y1="250" x2="1000" y2="250" stroke="rgba(201,168,76,0.2)" stroke-width="0.8" fill="none"/>
+        </g>
+
+        <!-- Grid labels -->
+        <text x="2" y="86" fill="rgba(201,168,76,0.25)" font-size="6" font-family="'Source Serif 4',serif">60°N</text>
+        <text x="2" y="170" fill="rgba(201,168,76,0.25)" font-size="6" font-family="'Source Serif 4',serif">30°N</text>
+        <text x="2" y="253" fill="rgba(201,168,76,0.25)" font-size="6" font-family="'Source Serif 4',serif">EQ</text>
+        <text x="2" y="336" fill="rgba(201,168,76,0.25)" font-size="6" font-family="'Source Serif 4',serif">30°S</text>
+
+        <!-- ===== CONTINENT OUTLINES ===== -->
+        <!-- North America (simplified) -->
+        <path class="continent" d="
+          M 38,95 C 50,78 80,68 115,70 C 145,72 165,65 188,68
+          C 210,70 230,65 252,70 C 268,74 278,68 290,72
+          C 302,76 315,84 322,95 C 328,105 322,118 312,124
+          C 302,130 288,134 278,142 C 265,152 262,165 254,178
+          C 246,190 238,200 228,210 C 218,220 206,225 196,220
+          C 182,213 176,200 172,188 C 165,172 160,158 150,146
+          C 138,132 118,124 98,116 C 78,108 58,103 38,95 Z
+        "/>
+        <!-- Central America strip -->
+        <path class="continent" d="
+          M 228,210 C 238,218 248,222 256,226 C 264,230 270,235 268,242
+          C 266,248 258,250 250,248 C 240,245 228,238 220,230
+          C 212,222 210,215 218,210 Z
+        "/>
+
+        <!-- South America (simplified) -->
+        <path class="continent" d="
+          M 252,248 C 268,242 295,240 318,244 C 342,248 368,252 385,262
+          C 400,272 405,288 398,308 C 392,326 380,342 372,360
+          C 362,380 356,402 348,424 C 338,448 322,468 304,478
+          C 286,488 265,488 250,478 C 233,466 222,448 216,428
+          C 208,405 210,382 215,360 C 220,338 222,316 220,295
+          C 218,274 228,258 252,248 Z
+        "/>
+
+        <!-- Greenland (small) -->
+        <path class="continent" d="
+          M 305,30 C 318,22 336,22 348,28 C 358,34 360,44 352,52
+          C 342,60 326,62 314,56 C 302,50 295,38 305,30 Z
+        "/>
+
+        <!-- Iceland -->
+        <path class="continent" d="
+          M 430,72 C 438,68 448,68 455,72 C 460,76 460,83 454,87
+          C 447,91 437,90 432,86 C 427,82 425,76 430,72 Z
+        "/>
+
+        <!-- Europe (simplified, including Scandinavia) -->
+        <path class="continent" d="
+          M 455,72 C 470,60 492,55 512,58 C 528,60 540,55 552,58
+          C 562,60 570,68 566,78 C 562,86 550,90 540,96
+          C 530,102 520,108 514,118 C 508,128 508,140 500,150
+          C 492,160 480,166 468,164 C 456,162 446,154 440,144
+          C 434,134 432,122 432,110 C 432,96 438,82 455,72 Z
+        "/>
+        <!-- Iberian peninsula -->
+        <path class="continent" d="
+          M 440,144 C 432,148 424,155 420,165 C 416,175 420,185 430,190
+          C 440,195 452,192 460,185 C 468,178 468,168 464,158
+          C 460,150 450,142 440,144 Z
+        "/>
+        <!-- Italy boot (simplified) -->
+        <path class="continent" d="
+          M 500,150 C 505,158 510,168 508,178 C 506,188 500,194 496,200
+          C 492,206 490,212 488,208 C 485,202 486,192 488,182
+          C 490,172 488,162 492,154 Z
+        "/>
+        <!-- UK (simplified) -->
+        <path class="continent" d="
+          M 446,96 C 452,88 462,86 468,90 C 474,94 472,104 466,110
+          C 460,116 450,116 445,112 C 440,108 440,102 446,96 Z
+        "/>
+
+        <!-- Africa (simplified) -->
+        <path class="continent" d="
+          M 462,185 C 480,180 502,178 524,180 C 548,182 572,186 590,196
+          C 608,206 616,220 614,238 C 612,256 600,270 592,285
+          C 582,302 575,320 570,340 C 563,362 556,385 545,405
+          C 532,428 514,448 492,458 C 470,468 444,466 424,454
+          C 402,440 388,418 380,395 C 370,370 370,344 375,320
+          C 380,298 388,278 390,258 C 392,238 388,218 395,200
+          C 402,184 426,182 462,185 Z
+        "/>
+
+        <!-- Europe to Asia land bridge -->
+        <path class="continent" d="
+          M 566,78 C 590,70 620,65 650,68 C 680,70 710,72 730,78
+          C 745,83 750,92 742,100 C 734,108 718,112 700,114
+          C 680,116 660,115 640,118 C 620,120 600,125 590,135
+          C 580,145 580,158 572,168 C 564,178 552,182 540,178
+          C 528,174 520,162 514,150 C 508,138 508,125 514,115
+          C 520,105 532,98 545,93 C 555,88 562,82 566,78 Z
+        "/>
+
+        <!-- Middle East / Arabian Peninsula -->
+        <path class="continent" d="
+          M 590,135 C 605,125 625,120 645,122 C 660,124 672,130 678,142
+          C 684,154 680,168 672,180 C 662,194 648,205 632,212
+          C 616,220 598,222 584,216 C 570,210 564,196 568,182
+          C 572,168 580,148 590,135 Z
+        "/>
+        <!-- Turkey / Anatolia -->
+        <path class="continent" d="
+          M 545,135 C 558,128 575,126 590,128 C 604,130 614,138 618,148
+          C 622,158 616,168 605,172 C 592,176 576,174 564,168
+          C 552,162 546,152 545,142 Z
+        "/>
+
+        <!-- Central/South Asia -->
+        <path class="continent" d="
+          M 650,68 C 680,60 720,58 760,62 C 800,66 838,75 868,85
+          C 895,94 912,108 905,125 C 898,140 878,150 858,158
+          C 835,167 810,172 788,178 C 765,184 742,188 720,185
+          C 698,182 678,175 665,162 C 652,149 648,133 650,118
+          C 652,105 650,85 650,68 Z
+        "/>
+        <!-- Indian subcontinent -->
+        <path class="continent" d="
+          M 720,185 C 738,185 755,190 765,202 C 775,214 772,228 762,240
+          C 750,253 732,262 715,265 C 698,268 680,262 672,250
+          C 663,237 665,220 672,208 C 680,196 698,185 720,185 Z
+        "/>
+
+        <!-- Southeast Asia (simplified) -->
+        <path class="continent" d="
+          M 868,85 C 890,80 915,80 940,88 C 960,95 972,108 968,122
+          C 964,136 948,145 930,150 C 910,155 888,152 872,144
+          C 855,136 848,122 850,108 C 852,96 858,88 868,85 Z
+        "/>
+        <!-- Malay peninsula + Indonesia (simplified blobs) -->
+        <path class="continent" d="
+          M 890,148 C 898,155 902,165 895,175 C 888,185 875,188 866,182
+          C 857,176 855,165 860,155 C 866,145 882,143 890,148 Z
+        "/>
+        <path class="continent" d="
+          M 920,165 C 938,160 958,162 972,172 C 986,182 988,196 978,206
+          C 966,218 945,222 925,216 C 905,210 896,196 900,183
+          C 904,172 910,168 920,165 Z
+        "/>
+
+        <!-- Japan (simplified) -->
+        <path class="continent" d="
+          M 950,100 C 956,94 965,92 972,96 C 979,100 980,108 975,115
+          C 969,122 960,124 953,120 C 946,116 945,106 950,100 Z
+        "/>
+
+        <!-- Australia (simplified) -->
+        <path class="continent" d="
+          M 832,320 C 855,310 882,308 908,314 C 934,320 958,332 972,350
+          C 984,366 983,385 970,400 C 956,416 932,426 907,430
+          C 880,434 850,430 826,418 C 800,405 784,384 782,362
+          C 780,340 795,326 820,318 Z
+        "/>
+        <!-- Tasmania -->
+        <path class="continent" d="
+          M 900,435 C 907,432 915,432 920,437 C 925,442 923,450 917,454
+          C 911,458 903,456 899,451 C 895,446 895,438 900,435 Z
+        "/>
+        <!-- New Zealand (tiny) -->
+        <path class="continent" d="
+          M 970,368 C 975,362 982,362 986,368 C 990,374 988,382 982,386
+          C 976,390 969,388 966,382 C 963,376 965,372 970,368 Z
+        "/>
+
+        <!-- Continent Labels -->
+        <g font-family="'Source Serif 4',serif" font-size="9" fill="rgba(44,30,10,0.55)" font-style="italic" letter-spacing="2" text-anchor="middle" font-variant="small-caps">
+          <text x="160" y="140">NORTH AMERICA</text>
+          <text x="290" y="370">SOUTH AMERICA</text>
+          <text x="500" y="135">EUROPE</text>
+          <text x="495" y="340">AFRICA</text>
+          <text x="760" y="130">ASIA</text>
+          <text x="620" y="190">MIDDLE EAST</text>
+          <text x="880" y="385">AUSTRALIA</text>
+        </g>
+
+        <!-- ===== MIGRATION ROUTE LINES ===== -->
+        <g id="routeLines" opacity="0.7">
+          <!-- Mexico → USA -->
+          <path class="route-line" d="M 195,195 Q 210,170 227,144"/>
+          <!-- Honduras → USA -->
+          <path class="route-line" d="M 248,226 Q 240,185 227,144"/>
+          <!-- Venezuela → USA -->
+          <path class="route-line" d="M 305,252 Q 275,200 227,144"/>
+          <!-- Mexico → Canada -->
+          <path class="route-line" d="M 195,195 Q 215,150 233,100"/>
+          <!-- Syria → Germany -->
+          <path class="route-line" d="M 610,152 Q 565,130 527,108"/>
+          <!-- Syria → Sweden -->
+          <path class="route-line" d="M 610,152 Q 570,115 550,83"/>
+          <!-- Nigeria → Germany -->
+          <path class="route-line" d="M 522,252 Q 520,185 527,108"/>
+          <!-- Nigeria → Sweden -->
+          <path class="route-line" d="M 522,252 Q 528,165 550,83"/>
+          <!-- Afghanistan → UAE -->
+          <path class="route-line" d="M 700,175 Q 665,165 643,172"/>
+          <!-- Afghanistan → Germany -->
+          <path class="route-line" d="M 700,175 Q 600,130 527,108"/>
+          <!-- Venezuela → Canada -->
+          <path class="route-line" d="M 305,252 Q 270,175 233,100"/>
+          <!-- Nigeria → UAE -->
+          <path class="route-line" d="M 522,252 Q 570,215 643,172"/>
+          <!-- Afghanistan → Australia -->
+          <path class="route-line" d="M 700,175 Q 780,240 880,310"/>
+          <!-- Syria → Australia -->
+          <path class="route-line" d="M 610,152 Q 730,210 880,310"/>
+        </g>
+
+        <!-- Migration traveling dots -->
+        <circle id="migrationDot" cx="0" cy="0" r="5"/>
+        <circle id="migrationDotBot" cx="0" cy="0" r="5"/>
+
+        <!-- ===== COUNTRY NODES ===== -->
+        <g id="countryNodes"></g>
+
+        <!-- ===== COMPASS ROSE ===== -->
+        <g class="compass-rose" transform="translate(950,460)">
+          <!-- Outer ring -->
+          <circle cx="0" cy="0" r="22" fill="none" stroke="rgba(201,168,76,0.5)" stroke-width="1"/>
+          <circle cx="0" cy="0" r="18" fill="rgba(10,20,35,0.7)" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>
+          <!-- N S E W arrows -->
+          <polygon points="0,-16 3,-8 0,-10 -3,-8" fill="#c9a84c"/>
+          <polygon points="0,16 3,8 0,10 -3,8" fill="rgba(201,168,76,0.4)"/>
+          <polygon points="16,0 8,3 10,0 8,-3" fill="rgba(201,168,76,0.4)"/>
+          <polygon points="-16,0 -8,3 -10,0 -8,-3" fill="rgba(201,168,76,0.4)"/>
+          <!-- Diagonal points -->
+          <polygon points="11,-11 8,-5 5,-8" fill="rgba(201,168,76,0.25)"/>
+          <polygon points="11,11 8,5 5,8" fill="rgba(201,168,76,0.25)"/>
+          <polygon points="-11,11 -8,5 -5,8" fill="rgba(201,168,76,0.25)"/>
+          <polygon points="-11,-11 -8,-5 -5,-8" fill="rgba(201,168,76,0.25)"/>
+          <!-- Center dot -->
+          <circle cx="0" cy="0" r="2.5" fill="#c9a84c"/>
+          <!-- N label -->
+          <text x="0" y="-20" font-family="'Playfair Display',serif" font-size="7" fill="#c9a84c" text-anchor="middle" font-weight="700">N</text>
+        </g>
+
+        <!-- Map title cartographic label -->
+        <text x="18" y="18" font-family="'Playfair Display',serif" font-size="10" fill="rgba(201,168,76,0.5)" font-style="italic" letter-spacing="2">ROOTS &amp; ROUTES</text>
+        <text x="18" y="30" font-family="'Source Serif 4',serif" font-size="6.5" fill="rgba(201,168,76,0.3)" letter-spacing="1.5">WORLD MIGRATION ATLAS</text>
+      </svg>
+
+      <!-- Bot thinking indicator -->
+      <div id="botThinking">
+        ARIA <div class="thinking-dots"><span>.</span><span>.</span><span>.</span></div>
+      </div>
+
+    </div><!-- end mapContainer -->
+
+    <!-- Bot Panel -->
+    <aside class="sidePanel" id="botPanel">
+      <div class="panel-header">🤖 ARIA</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="player-avatar" style="border-color:var(--teal)">🤖</div>
+        <div>
+          <div class="player-name" style="color:var(--teal)">ARIA</div>
+          <div class="player-country" id="botCountry">Automated Refugee Intelligence Agent</div>
+        </div>
+      </div>
+      <div class="stability-container">
+        <div class="stability-label">
+          <span>Stability</span>
+          <span id="botStabNum">5/10</span>
+        </div>
+        <div class="stability-track">
+          <div class="stability-fill stab-high" id="botStabBar" style="width:50%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="stat-row">
+          <span class="stat-label">Settlement Tokens</span>
+        </div>
+        <div class="tokens-row" id="botTokens">
+          <div class="token" id="bt0">☆</div>
+          <div class="token" id="bt1">☆</div>
+          <div class="token" id="bt2">☆</div>
+        </div>
+      </div>
+      <div>
+        <div class="stat-row" style="margin-bottom:4px">
+          <span class="stat-label">Turns Here</span>
+          <span class="stat-value" id="botTurnsHere">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Countries</span>
+          <span class="stat-value" id="botVisitedCount">1</span>
+        </div>
+      </div>
+      <div>
+        <div class="stat-label" style="margin-bottom:4px">Visited</div>
+        <div class="visited-list" id="botVisitedList">—</div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Bottom Panel -->
+  <section id="bottomPanel">
+
+    <!-- Left: Phase description -->
+    <div class="bottom-section">
+      <div class="section-title">Current Phase</div>
+      <p class="phase-desc" id="phaseDesc">Awaiting your next move.</p>
+    </div>
+
+    <!-- Center: Card display + actions -->
+    <div class="bottom-section" style="border:none;padding:8px 12px;display:flex;flex-direction:column;gap:8px">
+      <div id="cardArea"></div>
+      <div id="actionArea">
+        <div class="btn-row" id="mainButtons">
+          <button class="btn btn-success" id="btnStay" onclick="playerDecision('stay')">Stay Put</button>
+          <button class="btn btn-danger" id="btnMigrate" onclick="playerDecision('migrate')">Migrate →</button>
+        </div>
+        <div id="destGrid" style="display:none"></div>
+        <button class="btn btn-primary" id="btnNext" style="display:none" onclick="advanceTurn()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Right: ARIA log -->
+    <div class="bottom-section">
+      <div class="section-title">ARIA Analysis</div>
+      <div id="ariaAnalysis" style="font-size:11px;color:rgba(244,237,212,0.6);font-style:italic;line-height:1.5">
+        Analyzing migration patterns...
+      </div>
+    </div>
+
+  </section>
+
+</div><!-- end gameContainer -->
+
+<!-- Game Event Log -->
+<div id="gameLog">
+  <div class="log-header">⦿ Event Log</div>
+  <div id="logEntries"></div>
+</div>
+
+<script>
+// ============================================================
+// AP HuG GEOGRAPHIC CONCEPTS
+// ============================================================
+const HUG_CONCEPTS = {
+  push: {
+    name: "Push Factor (Ravenstein's Laws)",
+    def: "Conditions that drive people away from their origin — war, poverty, persecution, environmental disaster.",
+    wiki: "E.G. Ravenstein (1885) first catalogued push/pull forces in his 'Laws of Migration.'"
+  },
+  pull: {
+    name: "Pull Factor",
+    def: "Attractive conditions drawing migrants to a destination — jobs, safety, family, political freedom.",
+    wiki: "Pull factors interact with push factors; neither alone explains migration decisions."
+  },
+  obstacle: {
+    name: "Intervening Obstacle",
+    def: "Physical or political barriers that impede migration: borders, oceans, walls, visa regimes.",
+    wiki: "Everett Lee (1966) formalized push/pull/obstacle/personal factors in migration theory."
+  },
+  chain: {
+    name: "Chain Migration",
+    def: "When pioneer migrants establish a path and later migrants follow, creating migration streams.",
+    wiki: "Social networks lower the cost of migration for subsequent movers."
+  },
+  forced: {
+    name: "Forced Migration / Refugee Status",
+    def: "Involuntary relocation due to persecution, conflict, or disaster. 1951 UN Refugee Convention defines protections.",
+    wiki: "Refugees differ legally from economic migrants in international law."
+  },
+  internal: {
+    name: "Internal vs. International Migration",
+    def: "Migration within one country vs. across national borders — different legal statuses apply.",
+    wiki: "Most migration globally is internal (rural→urban), not international."
+  },
+  remittances: {
+    name: "Remittances",
+    def: "Money sent by migrants back to their home countries — a critical economic lifeline for many origin nations.",
+    wiki: "Remittances exceed foreign aid flows to developing countries globally."
+  },
+  brain_drain: {
+    name: "Brain Drain",
+    def: "Emigration of highly skilled or educated people, depleting origin country's human capital.",
+    wiki: "Common in developing nations; receiving countries benefit from 'brain gain.'"
+  },
+  xenophobia: {
+    name: "Nativism / Xenophobia",
+    def: "Anti-immigrant sentiment in destination countries; political backlash against migration.",
+    wiki: "Historically cyclic — spikes during economic downturns or security events."
+  },
+  settlement: {
+    name: "Settlement / Integration",
+    def: "The process of migrants establishing permanent residence and becoming part of the host society.",
+    wiki: "Integration outcomes depend on policy, language, cultural distance, and economic absorption."
+  }
+};
+
+// ============================================================
+// COUNTRIES DATA
+// ============================================================
+// SVG coordinates based on equirectangular projection 1000x510
+// x = (lon+180)*(1000/360), y = (90-lat)*(510/180)
+const COUNTRIES = {
+  // ORIGIN COUNTRIES
+  mexico:    { name:'Mexico',      flag:'🇲🇽', type:'origin',  x:185, y:195, stability:5, lon:-102, lat:24 },
+  honduras:  { name:'Honduras',    flag:'🇭🇳', type:'origin',  x:248, y:226, stability:4, lon:-87,  lat:15 },
+  syria:     { name:'Syria',       flag:'🇸🇾', type:'origin',  x:610, y:152, stability:3, lon:38,   lat:35 },
+  nigeria:   { name:'Nigeria',     flag:'🇳🇬', type:'origin',  x:522, y:252, stability:4, lon:8,    lat:10 },
+  venezuela: { name:'Venezuela',   flag:'🇻🇪', type:'origin',  x:305, y:252, stability:3, lon:-66,  lat:8  },
+  afghanistan:{ name:'Afghanistan', flag:'🇦🇫', type:'origin', x:700, y:175, stability:2, lon:67,   lat:33 },
+  // DESTINATION COUNTRIES
+  usa:       { name:'USA',         flag:'🇺🇸', type:'destination', x:227, y:144, lon:-98,  lat:38 },
+  canada:    { name:'Canada',      flag:'🇨🇦', type:'destination', x:233, y:100, lon:-96,  lat:60 },
+  germany:   { name:'Germany',     flag:'🇩🇪', type:'destination', x:527, y:108, lon:10,   lat:51 },
+  sweden:    { name:'Sweden',      flag:'🇸🇪', type:'destination', x:550, y:83,  lon:18,   lat:60 },
+  australia: { name:'Australia',   flag:'🇦🇺', type:'destination', x:880, y:330, lon:134,  lat:-25 },
+  uae:       { name:'UAE',         flag:'🇦🇪', type:'destination', x:643, y:192, lon:54,   lat:24  }
+};
+
+// DESTINATION PULL WEIGHTS for bot AI
+const DEST_PULL_WEIGHTS = {
+  canada:    10,
+  germany:   10,
+  sweden:    9,
+  australia: 8,
+  usa:       7,
+  uae:       6
+};
+
+// ============================================================
+// CARD DECKS
+// ============================================================
+// Push Cards — bad events at origin
+const PUSH_DECK = [
+  { id:'p1', icon:'🌵', title:'Drought Devastates Crops', effect:-2, type:'climate',
+    desc:'Farmland turns barren. Livelihoods vanish.', hug:'push', mustMigrate:false },
+  { id:'p2', icon:'⚖️', title:'Political Persecution Intensifies', effect:-3, type:'political',
+    desc:'Dissidents arrested. Fear pervades daily life.', hug:'push', mustMigrate:false },
+  { id:'p3', icon:'🔫', title:'Gang Violence Spikes', effect:-2, type:'security',
+    desc:'Extortion and murder rise unchecked.', hug:'push', mustMigrate:false },
+  { id:'p4', icon:'🏭', title:'Factory Closes, Jobs Gone', effect:-1, type:'economic',
+    desc:'Unemployment swells as industry collapses.', hug:'push', mustMigrate:false },
+  { id:'p5', icon:'🌋', title:'Natural Disaster Strikes', effect:-3, type:'environmental',
+    desc:'Earthquake or flood destroys homes and infrastructure.', hug:'forced', mustMigrate:false },
+  { id:'p6', icon:'💸', title:'Hyperinflation', effect:-2, type:'economic',
+    desc:'Your savings become worthless overnight.', hug:'push', mustMigrate:false },
+  { id:'p7', icon:'🏛️', title:'Government Corruption Worsens', effect:-1, type:'political',
+    desc:'Institutions fail. Basic services collapse.', hug:'push', mustMigrate:false },
+  { id:'p8', icon:'💧', title:'Water Scarcity Crisis', effect:-2, type:'resource',
+    desc:'Aquifers depleted. Competition for water turns violent.', hug:'push', mustMigrate:false },
+  { id:'p9', icon:'⚔️', title:'Ethnic Conflict Erupts', effect:-3, type:'social',
+    desc:'Intercommunal violence displaces thousands.', hug:'forced', mustMigrate:false },
+  { id:'p10', icon:'🏗️', title:'Infrastructure Collapses', effect:-1, type:'development',
+    desc:'Roads, power, hospitals — all failing.', hug:'push', mustMigrate:false },
+  { id:'p11', icon:'🌾', title:'Crop Failure', effect:-2, type:'agricultural',
+    desc:'Harvest lost. Food insecurity looms.', hug:'push', mustMigrate:false },
+  { id:'p12', icon:'💣', title:'Civil War Breaks Out', effect:-3, type:'conflict',
+    desc:'Armed factions seize control. Survival requires flight.', hug:'forced', mustMigrate:true }
+];
+
+// Obstacle Cards — journey challenges
+const OBSTACLE_DECK = [
+  { id:'o1', icon:'🛂', title:'Visa Denied', effectType:'lose_turn', effectVal:1,
+    desc:'Application rejected. You must wait.', hug:'obstacle', passable:false, stabilityChange:0 },
+  { id:'o2', icon:'🛣️', title:'Safe Passage', effectType:'pass', effectVal:0,
+    desc:'The route is clear. You travel freely.', hug:'obstacle', passable:true, stabilityChange:0 },
+  { id:'o3', icon:'🧱', title:'Border Wall', effectType:'reroute', effectVal:0,
+    desc:'Physical barrier forces a different route.', hug:'obstacle', passable:false, stabilityChange:0 },
+  { id:'o4', icon:'🌊', title:'Smuggler Route', effectType:'pass', effectVal:0,
+    desc:'Dangerous but effective. Arrives, diminished.', hug:'obstacle', passable:true, stabilityChange:-1 },
+  { id:'o5', icon:'🚔', title:'Detained at Border', effectType:'lose_turn', effectVal:2,
+    desc:'Held in processing center. Long wait ahead.', hug:'obstacle', passable:false, stabilityChange:0 },
+  { id:'o6', icon:'📋', title:'Papers Approved', effectType:'pass', effectVal:0,
+    desc:'Documents clear. Bonus stability on arrival.', hug:'obstacle', passable:true, stabilityChange:1 },
+  { id:'o7', icon:'🌊', title:'Seas Too Dangerous', effectType:'block_ocean', effectVal:0,
+    desc:'Storm season. Ocean crossing impossible this turn.', hug:'obstacle', passable:false, stabilityChange:0 },
+  { id:'o8', icon:'🏛️', title:'Asylum Granted', effectType:'pass', effectVal:0,
+    desc:'Legal protection secured. Move freely and gain stability.', hug:'forced', passable:true, stabilityChange:1 },
+  { id:'o9', icon:'🗣️', title:'Language Barrier', effectType:'pass', effectVal:0,
+    desc:'You arrive but struggle to integrate initially.', hug:'obstacle', passable:true, stabilityChange:-1 },
+  { id:'o10', icon:'⛺', title:'Refugee Camp', effectType:'lose_turn', effectVal:1,
+    desc:'Wait in temporary shelter before continuing.', hug:'forced', passable:false, stabilityChange:0 },
+  { id:'o11', icon:'🚁', title:'Border Patrol', effectType:'return', effectVal:0,
+    desc:'Caught and returned to origin country.', hug:'obstacle', passable:false, stabilityChange:0 },
+  { id:'o12', icon:'🤝', title:'Underground Railroad', effectType:'pass', effectVal:0,
+    desc:'Hidden network provides secret safe passage.', hug:'chain', passable:true, stabilityChange:0 }
+];
+
+// Pull Cards — destination benefits
+const PULL_DECK = [
+  { id:'l1', icon:'💼', title:'Strong Job Market', effect:3, type:'economic',
+    desc:'Low unemployment, high wages — opportunity abounds.', hug:'pull' },
+  { id:'l2', icon:'👨‍👩‍👧', title:'Family Already Here', effect:2, type:'chain',
+    desc:'Relatives provide housing and networks. Chain migration in action.', hug:'chain' },
+  { id:'l3', icon:'🏥', title:'Free Healthcare System', effect:2, type:'social',
+    desc:'Universal coverage eases burden on arrival.', hug:'pull' },
+  { id:'l4', icon:'🚫', title:'Overcrowded — Redirected', effect:0, type:'capacity',
+    desc:'Too many arrivals. You must choose elsewhere.', hug:'obstacle', redirect:true },
+  { id:'l5', icon:'💰', title:'High Wages', effect:3, type:'economic',
+    desc:'Purchasing power far exceeds origin country.', hug:'pull' },
+  { id:'l6', icon:'🕊️', title:'Welcoming Refugee Policy', effect:2, type:'political',
+    desc:'Government actively supports newcomers.', hug:'forced' },
+  { id:'l7', icon:'🕌', title:'Cultural Community Here', effect:2, type:'social',
+    desc:'Diaspora community provides immediate belonging.', hug:'chain' },
+  { id:'l8', icon:'📚', title:'Educational Opportunity', effect:1, type:'education',
+    desc:'World-class universities open to immigrants.', hug:'pull' },
+  { id:'l9', icon:'❄️', title:'Cold Climate, Cultural Shock', effect:1, type:'adjustment',
+    desc:'Integration is harder than expected. Slow progress.', hug:'obstacle' },
+  { id:'l10', icon:'🏠', title:'Housing Shortage', effect:1, type:'economic',
+    desc:'Accommodation scarce. You find something, barely.', hug:'obstacle' },
+  { id:'l11', icon:'🏛️', title:'Political Stability', effect:2, type:'political',
+    desc:'Rule of law, functioning institutions — a relief.', hug:'pull' },
+  { id:'l12', icon:'🌵', title:'Remote Location, Low Demand', effect:1, type:'geographic',
+    desc:'Work exists but isolation is real.', hug:'pull' }
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let G = {
+  started: false,
+  turn: 1,
+  maxTurns: 20,
+  phase: 'setup', // setup | push | decision | obstacle | arrival | settlement | end
+  playerMigrating: false,
+  botMigrating: false,
+  botTurnsWaiting: 0, // for lose_turn effects
+  playerTurnsWaiting: 0,
+  currentObstacle: null,
+  currentPull: null,
+  conceptsSeen: new Set(),
+  player: {
+    country: null,
+    stability: 5,
+    tokens: 0,
+    turnsInPlace: 0,
+    visited: [],
+    stabHistory: 0,
+    statsLost: 0,
+    statsGained: 0,
+    countriesVisited: [],
+    pushesDrawn: 0,
+    pullsDrawn: 0
+  },
+  bot: {
+    country: null,
+    stability: 5,
+    tokens: 0,
+    turnsInPlace: 0,
+    visited: [],
+    countriesVisited: []
+  },
+  decks: {
+    push: [],
+    obstacle: [],
+    pull: []
+  },
+  log: [],
+  pendingDestinations: [],
+  awaitingDestination: false
+};
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function drawCard(deckName) {
+  if (G.decks[deckName].length === 0) {
+    // Reshuffle
+    if (deckName === 'push') G.decks.push = shuffle([...PUSH_DECK]);
+    else if (deckName === 'obstacle') G.decks.obstacle = shuffle([...OBSTACLE_DECK]);
+    else G.decks.pull = shuffle([...PULL_DECK]);
+  }
+  return G.decks[deckName].pop();
+}
+
+function clampStability(val) { return Math.max(0, Math.min(10, val)); }
+
+function addLog(msg, type='system') {
+  G.log.unshift({ msg, type });
+  if (G.log.length > 50) G.log.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const el = document.getElementById('logEntries');
+  const entries = G.log.slice(0, 8);
+  el.innerHTML = entries.map(e =>
+    `<div class="log-entry log-${e.type}">${e.msg}</div>`
+  ).join('');
+}
+
+function setPhase(name) {
+  G.phase = name;
+  const labels = {
+    push: '⟢ PUSH PHASE',
+    decision: '⟢ DECISION',
+    obstacle: '⟢ OBSTACLE',
+    arrival: '⟢ ARRIVAL',
+    settlement: '⟢ SETTLEMENT',
+    end: '⟢ GAME OVER'
+  };
+  document.getElementById('phaseIndicator').textContent = labels[name] || name.toUpperCase();
+}
+
+function seeConcept(key) {
+  if (!G.conceptsSeen.has(key)) {
+    G.conceptsSeen.add(key);
+    renderConcepts();
+  }
+}
+
+function renderConcepts() {
+  const list = document.getElementById('conceptsList');
+  list.innerHTML = [...G.conceptsSeen].map(k => {
+    const c = HUG_CONCEPTS[k];
+    return c ? `<div class="concept-tag" title="${c.def}">${c.name}</div>` : '';
+  }).join('');
+}
+
+// ============================================================
+// START SCREEN
+// ============================================================
+const ORIGIN_COUNTRIES = ['mexico','honduras','syria','nigeria','venezuela','afghanistan'];
+let selectedCountry = null;
+
+function buildStartScreen() {
+  const grid = document.getElementById('countrySelectGrid');
+  grid.innerHTML = ORIGIN_COUNTRIES.map(key => {
+    const c = COUNTRIES[key];
+    return `
+      <div class="country-option" onclick="selectCountry('${key}', this)">
+        <span class="country-flag">${c.flag}</span>
+        <div class="country-label">${c.name}</div>
+        <div class="country-region">Origin Country</div>
+      </div>`;
+  }).join('');
+}
+
+function selectCountry(key, el) {
+  selectedCountry = key;
+  document.querySelectorAll('.country-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('startBtn').disabled = false;
+}
+
+function startGame() {
+  if (!selectedCountry) return;
+
+  // Assign bot a different origin country
+  const botOptions = ORIGIN_COUNTRIES.filter(k => k !== selectedCountry);
+  const botCountry = botOptions[Math.floor(Math.random() * botOptions.length)];
+
+  G.player.country = selectedCountry;
+  G.player.stability = 5;
+  G.player.visited = [selectedCountry];
+  G.player.countriesVisited = [selectedCountry];
+
+  G.bot.country = botCountry;
+  G.bot.stability = 5;
+  G.bot.visited = [botCountry];
+  G.bot.countriesVisited = [botCountry];
+
+  // Init decks
+  G.decks.push = shuffle([...PUSH_DECK]);
+  G.decks.obstacle = shuffle([...OBSTACLE_DECK]);
+  G.decks.pull = shuffle([...PULL_DECK]);
+
+  G.started = true;
+
+  // Hide start screen
+  document.getElementById('startScreen').style.display = 'none';
+
+  // Build map nodes
+  buildMapNodes();
+
+  // Update UI
+  updatePlayerUI();
+  updateBotUI();
+  updateMapPresence();
+
+  addLog(`Game started! You are in ${COUNTRIES[selectedCountry].name}. ARIA begins in ${COUNTRIES[botCountry].name}.`, 'system');
+  addLog('Turn 1 begins. Push Phase...', 'system');
+
+  // Begin first turn
+  setTimeout(() => beginPushPhase(), 600);
+}
+
+// ============================================================
+// MAP BUILDING
+// ============================================================
+function buildMapNodes() {
+  const group = document.getElementById('countryNodes');
+  group.innerHTML = '';
+
+  Object.entries(COUNTRIES).forEach(([key, c]) => {
+    const isOrigin = c.type === 'origin';
+    const glowFilter = isOrigin ? 'url(#amberGlow)' : 'url(#tealGlow)';
+    const strokeClass = isOrigin ? 'node-origin' : 'node-destination';
+    const innerClass = isOrigin ? 'node-inner-origin' : 'node-inner-destination';
+    const glowClass = isOrigin ? 'node-glow-origin' : 'node-glow-destination';
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'country-node-group');
+    g.setAttribute('id', `node-${key}`);
+    g.setAttribute('filter', glowFilter);
+
+    // Glow pulse ring
+    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    glow.setAttribute('cx', c.x); glow.setAttribute('cy', c.y); glow.setAttribute('r', 12);
+    glow.setAttribute('class', `node-glow ${glowClass}`);
+
+    // Inner filled circle
+    const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    inner.setAttribute('cx', c.x); inner.setAttribute('cy', c.y); inner.setAttribute('r', 7);
+    inner.setAttribute('class', `node-inner ${innerClass}`);
+    inner.setAttribute('stroke-width', '2');
+    inner.setAttribute('stroke', isOrigin ? 'rgba(212,129,58,0.8)' : 'rgba(42,157,143,0.8)');
+
+    // Label background
+    const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    const nameLen = c.name.length * 4 + 6;
+    labelBg.setAttribute('x', c.x - nameLen/2);
+    labelBg.setAttribute('y', c.y + 10);
+    labelBg.setAttribute('width', nameLen);
+    labelBg.setAttribute('height', 11);
+    labelBg.setAttribute('rx', 2); labelBg.setAttribute('ry', 2);
+    labelBg.setAttribute('fill', 'rgba(0,0,0,0.55)');
+
+    // Label text
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', c.x); label.setAttribute('y', c.y + 19);
+    label.setAttribute('class', 'node-label');
+    label.textContent = c.name;
+
+    // Presence rings (hidden by default)
+    const playerRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    playerRing.setAttribute('cx', c.x); playerRing.setAttribute('cy', c.y); playerRing.setAttribute('r', 13);
+    playerRing.setAttribute('class', 'presence-ring');
+    playerRing.setAttribute('stroke', '#c9a84c');
+    playerRing.setAttribute('id', `ring-player-${key}`);
+    playerRing.style.display = 'none';
+
+    const botRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    botRing.setAttribute('cx', c.x); botRing.setAttribute('cy', c.y); botRing.setAttribute('r', 16);
+    botRing.setAttribute('class', 'presence-ring');
+    botRing.setAttribute('stroke', '#2a9d8f');
+    botRing.setAttribute('id', `ring-bot-${key}`);
+    botRing.style.display = 'none';
+
+    g.appendChild(glow);
+    g.appendChild(playerRing);
+    g.appendChild(botRing);
+    g.appendChild(inner);
+    g.appendChild(labelBg);
+    g.appendChild(label);
+
+    group.appendChild(g);
+  });
+}
+
+function updateMapPresence() {
+  // Hide all rings
+  document.querySelectorAll('.presence-ring').forEach(el => el.style.display = 'none');
+
+  // Show player ring
+  if (G.player.country) {
+    const pr = document.getElementById(`ring-player-${G.player.country}`);
+    if (pr) pr.style.display = '';
+  }
+  // Show bot ring
+  if (G.bot.country) {
+    const br = document.getElementById(`ring-bot-${G.bot.country}`);
+    if (br) br.style.display = '';
+  }
+}
+
+// ============================================================
+// MIGRATION ANIMATION
+// ============================================================
+function animateMigration(fromKey, toKey, dotId, callback) {
+  const from = COUNTRIES[fromKey];
+  const to = COUNTRIES[toKey];
+  if (!from || !to) { callback && callback(); return; }
+
+  const dot = document.getElementById(dotId);
+  const svg = document.getElementById('worldMap');
+
+  // Create quadratic bezier control point (arc upward)
+  const cx = (from.x + to.x) / 2;
+  const cy = Math.min(from.y, to.y) - 40 - Math.abs(to.x - from.x) * 0.1;
+
+  dot.style.opacity = '1';
+
+  const duration = 1500;
+  const start = performance.now();
+
+  function step(ts) {
+    const t = Math.min((ts - start) / duration, 1);
+    // Quadratic bezier
+    const bx = (1-t)*(1-t)*from.x + 2*(1-t)*t*cx + t*t*to.x;
+    const by = (1-t)*(1-t)*from.y + 2*(1-t)*t*cy + t*t*to.y;
+    dot.setAttribute('cx', bx);
+    dot.setAttribute('cy', by);
+
+    if (t < 1) {
+      requestAnimationFrame(step);
+    } else {
+      dot.style.opacity = '0';
+      callback && callback();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+// UI UPDATERS
+// ============================================================
+function updatePlayerUI() {
+  const p = G.player;
+  const c = COUNTRIES[p.country] || {};
+  document.getElementById('playerCountry').textContent = c.name || '—';
+  document.getElementById('playerAvatar').textContent = c.flag || '🧑';
+
+  const pct = (p.stability / 10) * 100;
+  const bar = document.getElementById('playerStabBar');
+  bar.style.width = pct + '%';
+  bar.className = 'stability-fill ' + stabClass(p.stability);
+  document.getElementById('playerStabNum').textContent = `${p.stability}/10`;
+
+  // Tokens
+  for (let i = 0; i < 3; i++) {
+    const t = document.getElementById(`pt${i}`);
+    if (i < p.tokens) { t.classList.add('earned'); t.textContent = '★'; }
+    else { t.classList.remove('earned'); t.textContent = '☆'; }
+  }
+
+  document.getElementById('playerTurnsHere').textContent = p.turnsInPlace;
+  document.getElementById('playerVisitedCount').textContent = p.countriesVisited.length;
+  document.getElementById('playerVisitedList').textContent =
+    p.countriesVisited.map(k => COUNTRIES[k]?.name).filter(Boolean).join(', ') || '—';
+}
+
+function updateBotUI() {
+  const b = G.bot;
+  const c = COUNTRIES[b.country] || {};
+  document.getElementById('botCountry').textContent = c.name || '—';
+
+  const pct = (b.stability / 10) * 100;
+  const bar = document.getElementById('botStabBar');
+  bar.style.width = pct + '%';
+  bar.className = 'stability-fill ' + stabClass(b.stability);
+  document.getElementById('botStabNum').textContent = `${b.stability}/10`;
+
+  for (let i = 0; i < 3; i++) {
+    const t = document.getElementById(`bt${i}`);
+    if (i < b.tokens) { t.classList.add('earned'); t.textContent = '★'; }
+    else { t.classList.remove('earned'); t.textContent = '☆'; }
+  }
+
+  document.getElementById('botTurnsHere').textContent = b.turnsInPlace;
+  document.getElementById('botVisitedCount').textContent = b.countriesVisited.length;
+  document.getElementById('botVisitedList').textContent =
+    b.countriesVisited.map(k => COUNTRIES[k]?.name).filter(Boolean).join(', ') || '—';
+}
+
+function stabClass(v) {
+  if (v >= 6) return 'stab-high';
+  if (v >= 3) return 'stab-mid';
+  return 'stab-low';
+}
+
+function setPhaseDesc(text) {
+  document.getElementById('phaseDesc').textContent = text;
+}
+
+function setAriaAnalysis(text) {
+  document.getElementById('ariaAnalysis').textContent = text;
+}
+
+function showBotThinking(show) {
+  const el = document.getElementById('botThinking');
+  el.classList.toggle('active', show);
+}
+
+function setButtons(config) {
+  // config: { stay, migrate, next, destinations }
+  document.getElementById('mainButtons').style.display = config.showDecision ? 'flex' : 'none';
+  document.getElementById('btnStay').disabled = !config.stay;
+  document.getElementById('btnMigrate').disabled = !config.migrate;
+  document.getElementById('btnNext').style.display = config.next ? '' : 'none';
+  document.getElementById('destGrid').style.display = config.destinations ? '' : 'none';
+}
+
+function renderCard(card, deckType) {
+  const cls = deckType === 'push' ? 'card-push' : deckType === 'obstacle' ? 'card-obstacle' : 'card-pull';
+  const hugKey = card.hug;
+  const hug = HUG_CONCEPTS[hugKey];
+  seeConcept(hugKey);
+
+  return `
+    <div class="card ${cls} flipping">
+      <div class="card-type-tag">
+        ${deckType === 'push' ? '🔴 Push Factor' : deckType === 'obstacle' ? '🔵 Obstacle' : '🟢 Pull Factor'}
+      </div>
+      <div class="card-icon">${card.icon}</div>
+      <div class="card-title">${card.title}</div>
+      <div class="card-effect">${card.desc || ''}</div>
+      ${card.effect !== undefined ? `<div style="margin-top:4px;font-size:11px;font-weight:700;color:${card.effect<0?'#ff8b94':'#90e0a0'}">${card.effect>0?'+':''}${card.effect} Stability</div>` : ''}
+      ${hug ? `<div class="card-hug-badge">${hug.name.split('(')[0].trim()}</div>` : ''}
+    </div>`;
+}
+
+function flash(color) {
+  const el = document.getElementById('flashOverlay');
+  el.className = color === 'red' ? 'flash-red' : 'flash-gold';
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 400);
+}
+
+// ============================================================
+// PARTICLE EFFECTS
+// ============================================================
+const canvas = document.getElementById('particleCanvas');
+const ctx2d = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+let particles = [];
+function spawnConfetti() {
+  const colors = ['#c9a84c','#f4edd4','#2a9d8f','#e63946','#52b788','#457b9d'];
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.5,
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 3 + 1,
+      size: Math.random() * 8 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * Math.PI * 2,
+      rotV: (Math.random() - 0.5) * 0.2,
+      life: 1
+    });
+  }
+  animateParticles();
+}
+
+let particleRAF = null;
+function animateParticles() {
+  if (particleRAF) cancelAnimationFrame(particleRAF);
+  ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rotation += p.rotV;
+    p.life -= 0.01;
+    p.vy += 0.05;
+
+    ctx2d.save();
+    ctx2d.globalAlpha = p.life;
+    ctx2d.translate(p.x, p.y);
+    ctx2d.rotate(p.rotation);
+    ctx2d.fillStyle = p.color;
+    ctx2d.fillRect(-p.size/2, -p.size/2, p.size, p.size/2);
+    ctx2d.restore();
+  });
+
+  if (particles.length > 0) {
+    particleRAF = requestAnimationFrame(animateParticles);
+  } else {
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+// ============================================================
+// TURN FLOW
+// ============================================================
+function beginPushPhase() {
+  if (G.phase === 'end') return;
+  setPhase('push');
+  document.getElementById('turnDisplay').textContent = G.turn;
+  setButtons({ showDecision:false, next:false, destinations:false });
+
+  // Handle waiting players
+  if (G.playerTurnsWaiting > 0) {
+    G.playerTurnsWaiting--;
+    addLog(`⏳ You are waiting (${G.playerTurnsWaiting} more turns)`, 'system');
+  }
+  if (G.botTurnsWaiting > 0) {
+    G.botTurnsWaiting--;
+    addLog(`⏳ ARIA is waiting (${G.botTurnsWaiting} more turns)`, 'system');
+  }
+
+  // Draw push cards for both
+  const playerPush = drawCard('push');
+  const botPush = drawCard('push');
+
+  G.player.pushesDrawn++;
+
+  // Apply stability changes
+  const playerEffect = playerPush.effect;
+  const botEffect = botPush.effect;
+
+  if (G.playerTurnsWaiting === 0) {
+    G.player.stability = clampStability(G.player.stability + playerEffect);
+    G.player.statsLost += Math.max(0, -playerEffect);
+  }
+  G.bot.stability = clampStability(G.bot.stability + botEffect);
+
+  // Determine if forced migration
+  G.playerMigrating = playerPush.mustMigrate || G.player.stability <= 0;
+  G.botMigrating = botPush.mustMigrate || G.bot.stability <= 0;
+
+  // Show cards
+  const cardArea = document.getElementById('cardArea');
+  cardArea.innerHTML = `
+    <div>
+      <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,237,212,0.5);margin-bottom:4px;text-align:center">YOUR PUSH</div>
+      ${renderCard(playerPush, 'push')}
+    </div>
+    <div>
+      <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(69,123,157,0.7);margin-bottom:4px;text-align:center">ARIA's PUSH</div>
+      ${renderCard(botPush, 'push')}
+    </div>`;
+
+  setPhaseDesc(`You drew: "${playerPush.title}" (${playerEffect < 0 ? playerEffect : '+'+playerEffect} Stability). ARIA drew: "${botPush.title}".`);
+
+  if (playerPush.mustMigrate) {
+    addLog(`🔴 Civil War! You MUST migrate from ${COUNTRIES[G.player.country]?.name}.`, 'push');
+  } else {
+    addLog(`🔴 Push: "${playerPush.title}" — ${playerEffect} stability`, 'push');
+  }
+  addLog(`🤖 ARIA Push: "${botPush.title}" — ${botEffect} stability`, 'push');
+
+  if (playerEffect < 0) flash('red');
+  else flash('gold');
+
+  updatePlayerUI();
+  updateBotUI();
+
+  setAriaAnalysis(`ARIA analyzing stability (${G.bot.stability}/10). ${G.bot.stability < 3 ? 'Migration threshold reached. ARIA will move.' : 'Monitoring conditions.'}`);
+
+  setTimeout(() => beginDecisionPhase(playerPush), 1200);
+}
+
+function beginDecisionPhase(playerPush) {
+  setPhase('decision');
+
+  if (G.playerTurnsWaiting > 0) {
+    // Player is stuck waiting
+    setPhaseDesc('You are waiting this turn (obstacle effect). ARIA acts.');
+    setButtons({ showDecision:false, next:true });
+    document.getElementById('cardArea').innerHTML = `<div style="color:rgba(244,237,212,0.5);font-style:italic;padding:20px;text-align:center">⏳ Waiting — obstacle in effect</div>`;
+    setTimeout(() => processBotDecision(), 1500);
+    return;
+  }
+
+  const mustMigrate = G.playerMigrating;
+
+  if (mustMigrate) {
+    // Civil war or 0 stability — forced migration
+    setPhaseDesc(`⚠️ Your stability reached critical levels. You MUST migrate. Choose your destination.`);
+    setButtons({ showDecision:false, next:false, destinations:false });
+    flash('red');
+    setTimeout(() => beginArrivalPhase_Player(), 800);
+    return;
+  }
+
+  // Player decision
+  setPhaseDesc(`Stability: ${G.player.stability}/10. Do you stay in ${COUNTRIES[G.player.country]?.name} or migrate to a destination country?`);
+  setButtons({ showDecision:true, stay:true, migrate:true, next:false });
+}
+
+function playerDecision(choice) {
+  setButtons({ showDecision:false, next:false });
+
+  if (choice === 'stay') {
+    addLog(`✋ You chose to stay in ${COUNTRIES[G.player.country]?.name}.`, 'system');
+    G.playerMigrating = false;
+    processBotDecision();
+  } else {
+    addLog(`✈️ You chose to migrate.`, 'system');
+    G.playerMigrating = true;
+    beginObstaclePhase_Player();
+  }
+}
+
+// ============================================================
+// OBSTACLE PHASE — PLAYER
+// ============================================================
+function beginObstaclePhase_Player() {
+  setPhase('obstacle');
+  const card = drawCard('obstacle');
+  G.currentObstacle = card;
+
+  const cardArea = document.getElementById('cardArea');
+  cardArea.innerHTML = renderCard(card, 'obstacle');
+
+  setPhaseDesc(`Obstacle: "${card.title}" — ${card.desc}`);
+  addLog(`🔵 Obstacle: "${card.title}"`, 'obstacle');
+
+  if (card.hug) seeConcept(card.hug);
+
+  // Apply obstacle
+  if (card.effectType === 'pass') {
+    if (card.stabilityChange !== 0) {
+      G.player.stability = clampStability(G.player.stability + card.stabilityChange);
+    }
+    G.playerMigrating = true;
+    updatePlayerUI();
+    flash('gold');
+    setPhaseDesc(`Obstacle: "${card.title}" — You may proceed to choose a destination.`);
+    setTimeout(() => beginArrivalPhase_Player(), 1000);
+
+  } else if (card.effectType === 'lose_turn') {
+    G.playerTurnsWaiting = card.effectVal;
+    G.playerMigrating = false;
+    addLog(`⏳ You lose ${card.effectVal} turn(s): "${card.title}"`, 'obstacle');
+    setPhaseDesc(`You lose ${card.effectVal} turn(s). Must wait.`);
+    setTimeout(() => processBotDecision(), 1500);
+
+  } else if (card.effectType === 'return') {
+    // Return to origin
+    addLog(`🚔 Border Patrol! Returned to ${COUNTRIES[G.player.country]?.name}.`, 'obstacle');
+    G.playerMigrating = false;
+    G.player.turnsInPlace = 0;
+    setPhaseDesc(`Border Patrol! You are returned to ${COUNTRIES[G.player.country]?.name}.`);
+    flash('red');
+    setTimeout(() => processBotDecision(), 1500);
+
+  } else if (card.effectType === 'reroute' || card.effectType === 'block_ocean') {
+    // Still migrating but limited destinations
+    G.playerMigrating = true;
+    addLog(`🧱 ${card.title} — destination options may be limited.`, 'obstacle');
+    setTimeout(() => beginArrivalPhase_Player(card.effectType), 1000);
+  } else {
+    G.playerMigrating = false;
+    setTimeout(() => processBotDecision(), 1200);
+  }
+}
+
+// ============================================================
+// ARRIVAL PHASE — PLAYER (choose destination)
+// ============================================================
+function beginArrivalPhase_Player(obstacleType) {
+  setPhase('arrival');
+
+  const destinations = Object.entries(COUNTRIES)
+    .filter(([k, c]) => c.type === 'destination')
+    .map(([k, c]) => ({ key: k, ...c }));
+
+  // If ocean block, remove ocean crossings (simplified: remove Australia)
+  const filtered = obstacleType === 'block_ocean'
+    ? destinations.filter(d => !['australia'].includes(d.key))
+    : destinations;
+
+  // Show destination choices on map and in grid
+  const grid = document.getElementById('destGrid');
+  grid.innerHTML = filtered.map(d =>
+    `<button class="dest-btn" onclick="playerChooseDestination('${d.key}')">
+      ${d.flag} ${d.name}
+    </button>`
+  ).join('');
+
+  document.getElementById('destGrid').style.display = 'flex';
+  document.getElementById('mainButtons').style.display = 'none';
+  document.getElementById('btnNext').style.display = 'none';
+
+  setPhaseDesc('Choose your destination country. Each has different pull factors awaiting.');
+  G.awaitingDestination = true;
+}
+
+function playerChooseDestination(key) {
+  G.awaitingDestination = false;
+  document.getElementById('destGrid').style.display = 'none';
+
+  const from = G.player.country;
+  const to = key;
+
+  addLog(`🗺️ Migrating: ${COUNTRIES[from]?.name} → ${COUNTRIES[to]?.name}`, 'system');
+
+  // Animate migration
+  animateMigration(from, to, 'migrationDot', () => {
+    // Arrive
+    G.player.country = to;
+    G.player.turnsInPlace = 0;
+    if (!G.player.countriesVisited.includes(to)) {
+      G.player.countriesVisited.push(to);
+    }
+    updateMapPresence();
+    drawPullCard_Player(to);
+  });
+}
+
+function drawPullCard_Player(country) {
+  const card = drawCard('pull');
+  G.player.pullsDrawn++;
+  G.currentPull = card;
+
+  const cardArea = document.getElementById('cardArea');
+  cardArea.innerHTML += renderCard(card, 'pull');
+
+  // Handle redirect (overcrowded)
+  if (card.redirect) {
+    // Check if bot is also there
+    if (G.bot.country === country) {
+      addLog(`🚫 Overcrowded! ${COUNTRIES[country]?.name} is full. Choose again.`, 'system');
+      setPhaseDesc(`Overcrowded! Both ARIA and you in ${COUNTRIES[country]?.name}. Choose another destination.`);
+      seeConcept('obstacle');
+      setTimeout(() => beginArrivalPhase_Player(), 800);
+      return;
+    }
+  }
+
+  const effect = card.effect || 0;
+  if (effect !== 0) {
+    G.player.stability = clampStability(G.player.stability + effect);
+    if (effect > 0) {
+      G.player.statsGained += effect;
+      flash('gold');
+    }
+  }
+
+  if (card.hug) seeConcept(card.hug);
+
+  addLog(`🟢 Pull in ${COUNTRIES[country]?.name}: "${card.title}" (${effect > 0 ? '+' : ''}${effect} stability)`, 'pull');
+  setPhaseDesc(`Arrived in ${COUNTRIES[country]?.name}! Pull Factor: "${card.title}" — ${effect > 0 ? '+' : ''}${effect} Stability.`);
+  updatePlayerUI();
+
+  setTimeout(() => processBotDecision(), 1200);
+}
+
+// ============================================================
+// BOT AI — ARIA
+// ============================================================
+function processBotDecision() {
+  showBotThinking(true);
+
+  setTimeout(() => {
+    showBotThinking(false);
+    executeBotDecision();
+  }, 1500 + Math.random() * 500);
+}
+
+function executeBotDecision() {
+  // Bot decides to migrate if: stability < 3 OR 40% random chance OR forced
+  const shouldMigrate = G.botMigrating || G.bot.stability < 3 || Math.random() < 0.4;
+
+  if (G.botTurnsWaiting > 0) {
+    addLog(`⏳ ARIA waits (${G.botTurnsWaiting} turns remaining).`, 'system');
+    setAriaAnalysis(`ARIA is waiting. Stability: ${G.bot.stability}/10.`);
+    checkSettlement();
+    return;
+  }
+
+  if (!shouldMigrate) {
+    addLog(`🤖 ARIA stays in ${COUNTRIES[G.bot.country]?.name}.`, 'system');
+    setAriaAnalysis(`ARIA stays. Stability acceptable at ${G.bot.stability}/10. Settlement progress: ${G.bot.turnsInPlace}/2 turns.`);
+    checkSettlement();
+    return;
+  }
+
+  // Bot migrates — draw obstacle
+  G.botMigrating = true;
+  const obstacle = drawCard('obstacle');
+  addLog(`🤖 ARIA migrating — Obstacle: "${obstacle.title}"`, 'obstacle');
+  setAriaAnalysis(`ARIA drew obstacle: "${obstacle.title}". ${obstacle.passable ? 'Passable!' : 'Blocked!'}`);
+
+  if (!obstacle.passable) {
+    if (obstacle.effectType === 'lose_turn') {
+      G.botTurnsWaiting = obstacle.effectVal;
+    } else if (obstacle.effectType === 'return') {
+      G.bot.turnsInPlace = 0;
+    }
+    G.botMigrating = false;
+    addLog(`🤖 ARIA blocked: "${obstacle.title}"`, 'obstacle');
+    checkSettlement();
+    return;
+  }
+
+  if (obstacle.stabilityChange) {
+    G.bot.stability = clampStability(G.bot.stability + obstacle.stabilityChange);
+  }
+
+  // Bot chooses destination (AI logic)
+  const botDest = chooseBotDestination();
+  const from = G.bot.country;
+
+  addLog(`🤖 ARIA migrating to ${COUNTRIES[botDest]?.name}.`, 'system');
+  setAriaAnalysis(`ARIA selected ${COUNTRIES[botDest]?.name} based on pull factor analysis.`);
+
+  animateMigration(from, botDest, 'migrationDotBot', () => {
+    G.bot.country = botDest;
+    G.bot.turnsInPlace = 0;
+    if (!G.bot.countriesVisited.includes(botDest)) {
+      G.bot.countriesVisited.push(botDest);
+    }
+    updateMapPresence();
+
+    // Draw pull card for bot
+    const pull = drawCard('pull');
+    const effect = pull.effect || 0;
+    G.bot.stability = clampStability(G.bot.stability + effect);
+
+    addLog(`🤖 ARIA pull in ${COUNTRIES[botDest]?.name}: "${pull.title}" (${effect>=0?'+':''}${effect})`, 'pull');
+    updateBotUI();
+    checkSettlement();
+  });
+}
+
+function chooseBotDestination() {
+  const destinations = Object.entries(COUNTRIES)
+    .filter(([k, c]) => c.type === 'destination')
+    .map(([k]) => k);
+
+  // Weight by pull score, penalize if bot is already there, penalize if overcrowded
+  const weights = destinations.map(k => {
+    let w = DEST_PULL_WEIGHTS[k] || 5;
+    if (k === G.bot.country) w -= 5; // avoid staying in same place
+    if (k === G.player.country) w -= 2; // slight penalty if player is there
+    return { k, w: Math.max(1, w) };
+  });
+
+  // Weighted random selection
+  const total = weights.reduce((s, x) => s + x.w, 0);
+  let r = Math.random() * total;
+  for (const { k, w } of weights) {
+    r -= w;
+    if (r <= 0) return k;
+  }
+  return destinations[0];
+}
+
+// ============================================================
+// SETTLEMENT CHECK
+// ============================================================
+function checkSettlement() {
+  // Increment turns in place
+  if (!G.playerMigrating && G.playerTurnsWaiting === 0) G.player.turnsInPlace++;
+  if (!G.botMigrating && G.botTurnsWaiting === 0) G.bot.turnsInPlace++;
+
+  // Reset migration flags
+  G.playerMigrating = false;
+  G.botMigrating = false;
+
+  let playerSettled = false;
+  let botSettled = false;
+
+  // Check if in a destination country for 2+ turns
+  if (G.player.country && COUNTRIES[G.player.country]?.type === 'destination' && G.player.turnsInPlace >= 2) {
+    G.player.tokens++;
+    G.player.turnsInPlace = 0;
+    playerSettled = true;
+    seeConcept('settlement');
+    addLog(`🌟 YOU earned a Settlement Token in ${COUNTRIES[G.player.country]?.name}!`, 'pull');
+    flash('gold');
+    spawnConfetti();
+  }
+
+  if (G.bot.country && COUNTRIES[G.bot.country]?.type === 'destination' && G.bot.turnsInPlace >= 2) {
+    G.bot.tokens++;
+    G.bot.turnsInPlace = 0;
+    botSettled = true;
+    addLog(`🤖 ARIA earned a Settlement Token in ${COUNTRIES[G.bot.country]?.name}!`, 'system');
+  }
+
+  updatePlayerUI();
+  updateBotUI();
+  updateMapPresence();
+
+  // Win check
+  if (G.player.tokens >= 3) {
+    endGame('player');
+    return;
+  }
+  if (G.bot.tokens >= 3) {
+    endGame('bot');
+    return;
+  }
+
+  // Sudden death
+  if (G.turn >= G.maxTurns) {
+    endGame(G.player.tokens >= G.bot.tokens ? 'player' : 'bot');
+    return;
+  }
+
+  G.turn++;
+  document.getElementById('turnDisplay').textContent = G.turn;
+
+  if (playerSettled) {
+    setPhaseDesc(`🌟 Settlement Token earned in ${COUNTRIES[G.player.country]?.name}! You have ${G.player.tokens}/3. Next turn begins.`);
+    setTimeout(() => beginPushPhase(), 2500);
+  } else {
+    setTimeout(() => beginPushPhase(), 800);
+  }
+}
+
+// ============================================================
+// GAME OVER
+// ============================================================
+function endGame(winner) {
+  setPhase('end');
+
+  const screen = document.getElementById('gameOverScreen');
+  screen.style.display = 'flex';
+
+  const isWin = winner === 'player';
+  document.getElementById('overTitle').textContent = isWin ? '✦ Victory ✦' : 'Journey\'s End';
+  document.getElementById('overTitle').style.color = isWin ? '#c9a84c' : '#457b9d';
+  document.getElementById('overSubtitle').textContent = isWin
+    ? `You successfully settled with ${G.player.tokens} Settlement Token${G.player.tokens!==1?'s':''}. You navigated the forces of migration and found a new home.`
+    : `ARIA settled with ${G.bot.tokens} token${G.bot.tokens!==1?'s':''} to your ${G.player.tokens}. The journey continues...`;
+
+  if (isWin) spawnConfetti();
+
+  // Stats grid
+  const grid = document.getElementById('overGrid');
+  grid.innerHTML = `
+    <div class="over-card">
+      <div class="over-card-title">Your Journey</div>
+      <div style="font-size:12px;color:rgba(244,237,212,0.75);line-height:2">
+        <div>🌍 Countries visited: <strong style="color:var(--gold)">${G.player.countriesVisited.length}</strong></div>
+        <div>🌟 Settlement tokens: <strong style="color:var(--gold)">${G.player.tokens}</strong></div>
+        <div>📉 Total stability lost: <strong style="color:#ff8b94">${G.player.statsLost}</strong></div>
+        <div>📈 Total stability gained: <strong style="color:#90e0a0">${G.player.statsGained}</strong></div>
+        <div>🃏 Push cards encountered: <strong>${G.player.pushesDrawn}</strong></div>
+        <div>🔵 Turns played: <strong>${G.turn}</strong></div>
+        <div>🗺️ Path: ${G.player.countriesVisited.map(k=>COUNTRIES[k]?.name).join(' → ')}</div>
+      </div>
+    </div>
+    <div class="over-card">
+      <div class="over-card-title">AP HuG Concepts Encountered</div>
+      <div>
+        ${[...G.conceptsSeen].map(k => {
+          const c = HUG_CONCEPTS[k];
+          return c ? `
+            <div class="concept-entry">
+              <div class="concept-name">${c.name}</div>
+              <div class="concept-def">${c.def}</div>
+            </div>` : '';
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Migration summary
+  const summary = generateMigrationSummary();
+  document.getElementById('overSummary').textContent = summary;
+}
+
+function generateMigrationSummary() {
+  const origin = COUNTRIES[G.player.countriesVisited[0]];
+  const destinations = G.player.countriesVisited.slice(1).map(k => COUNTRIES[k]?.name).filter(Boolean);
+  const concepts = [...G.conceptsSeen].map(k => HUG_CONCEPTS[k]?.name).filter(Boolean);
+
+  return `This game demonstrated core AP Human Geography migration principles. Starting in ${origin?.name || 'an origin country'}, you experienced multiple push factors — the conditions that compel people to leave their homelands. ${destinations.length > 0 ? `Your journey led through ${destinations.join(', ')}, where pull factors and intervening obstacles shaped your path.` : 'You chose to remain in your origin country despite destabilizing push factors.'} The interplay of push and pull forces, as theorized by E.G. Ravenstein (1885) and formalized by Everett Lee (1966), drives all human migration — from rural-to-urban flows to international refugee movements. Real migrants face these exact forces: war, economic collapse, environmental disaster (push), versus opportunity, family networks, political safety (pull), with borders, oceans, and laws as intervening obstacles. This game modeled ${concepts.length} key geographic concepts: ${concepts.slice(0,4).join(', ')}${concepts.length > 4 ? ', and more' : ''}.`;
+}
+
+// ============================================================
+// CONCEPTS SIDEBAR TOGGLE
+// ============================================================
+function toggleConcepts() {
+  document.getElementById('conceptsSidebar').classList.toggle('open');
+}
+
+// ============================================================
+// ADVANCE TURN (next button)
+// ============================================================
+function advanceTurn() {
+  processBotDecision();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildStartScreen();
+</script>
+</body>
+</html>
