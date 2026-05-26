@@ -3,32 +3,36 @@
 //  Real D3 world map + Monopoly-style explicit card drawing
 // ═══════════════════════════════════════════════════════════
 
-// ── AP HuG CONCEPTS ────────────────────────────────────────
+// ── AP HuG CONCEPTS (Unit 2: Population & Migration) ───────
 const CONCEPTS = {
-  push:      { name:'Push Factor (Ravenstein)', def:'Conditions forcing people to leave their origin — war, poverty, disaster, persecution.' },
-  pull:      { name:'Pull Factor',              def:'Attractive conditions drawing migrants to destinations — jobs, safety, family, stability.' },
-  obstacle:  { name:'Intervening Obstacle',     def:'Physical or political barriers impeding migration: borders, seas, visa regimes, walls.' },
-  chain:     { name:'Chain Migration',          def:'Later migrants follow pioneer migrants along established routes using existing social networks.' },
-  forced:    { name:'Forced Migration / Refugee', def:'Involuntary displacement due to conflict or disaster. Governed by the 1951 UN Refugee Convention.' },
-  settlement:{ name:'Integration & Settlement', def:'Process of migrants establishing permanent residence and becoming part of the host society.' },
-  remit:     { name:'Remittances',              def:'Money sent by migrants to origin countries — often exceeds foreign aid flows globally.' },
-  brain:     { name:'Brain Drain',              def:'Emigration of skilled workers, depleting origin country human capital.' }
+  push:         { name:'Push Factor',             unit:'Unit 2', def:'Conditions forcing emigration — war, poverty, disaster, persecution. Formalized by E.G. Ravenstein (1885) and Everett Lee (1966).' },
+  pull:         { name:'Pull Factor',             unit:'Unit 2', def:'Attractive conditions drawing migrants — jobs, safety, family reunification, higher wages, political freedom.' },
+  obstacle:     { name:'Intervening Obstacle',    unit:'Unit 2', def:'Physical or political barriers impeding migration: border walls, oceans, visa regimes, detention. From Lee\'s migration model (1966).' },
+  chain:        { name:'Chain Migration',         unit:'Unit 2', def:'Later migrants follow pioneer migrants along established routes, using existing diaspora networks and social capital.' },
+  forced:       { name:'Forced Migration',        unit:'Unit 2', def:'Involuntary displacement due to conflict, persecution, or disaster. Protected by the 1951 UN Refugee Convention and 1967 Protocol.' },
+  settlement:   { name:'Integration & Settlement',unit:'Unit 2', def:'Process of migrants establishing permanent residence and cultural integration in the host society.' },
+  remit:        { name:'Remittances',             unit:'Unit 2', def:'Money transferred by migrants to origin families. In 2023, $857 billion was remitted globally — surpassing total foreign aid.' },
+  brain:        { name:'Brain Drain',             unit:'Unit 2', def:'Emigration of educated/skilled workers, depleting origin country human capital and slowing economic development.' },
+  step:         { name:'Step Migration',          unit:'Unit 2', def:'Moving through progressively larger settlements or regions before reaching final destination (Ravenstein\'s 5th Law).' },
+  intervening:  { name:'Intervening Opportunity', unit:'Unit 2', def:'A closer, accessible opportunity that redirects a migrant from their original destination (Samuel Stouffer, 1940).' },
+  transnational:{ name:'Transnationalism',        unit:'Unit 3', def:'Migrants maintaining simultaneous social, cultural, and economic ties to both home and host countries.' },
+  ravenstein:   { name:'Ravenstein\'s Laws',      unit:'Unit 2', def:'E.G. Ravenstein (1885): migration is mostly rural→urban, moves in stages, mostly short distances, driven by economic motives.' }
 };
 
-// ── COUNTRY DATA — lat/lon for D3 + topoId for map highlight
+// ── COUNTRY DATA ────────────────────────────────────────────
 const CTRY = {
-  mexico:      { name:'Mexico',      code:'MX', type:'origin', lat:23.6,  lon:-102.5, col:'#e07030', region:'Central America', topoId:484 },
-  honduras:    { name:'Honduras',    code:'HN', type:'origin', lat:14.1,  lon:-86.2,  col:'#e07030', region:'Central America', topoId:340 },
-  syria:       { name:'Syria',       code:'SY', type:'origin', lat:35.0,  lon:38.3,   col:'#e07030', region:'Middle East',     topoId:760 },
-  nigeria:     { name:'Nigeria',     code:'NG', type:'origin', lat:9.1,   lon:8.7,    col:'#e07030', region:'West Africa',     topoId:566 },
-  venezuela:   { name:'Venezuela',   code:'VE', type:'origin', lat:7.5,   lon:-66.6,  col:'#e07030', region:'South America',   topoId:862 },
-  afghanistan: { name:'Afghanistan', code:'AF', type:'origin', lat:33.9,  lon:67.7,   col:'#e07030', region:'Central Asia',    topoId:4   },
-  usa:         { name:'USA',         code:'US', type:'dest',   lat:37.1,  lon:-98.5,  col:'#0ecbb8', region:'North America',   topoId:840 },
-  canada:      { name:'Canada',      code:'CA', type:'dest',   lat:58.0,  lon:-96.8,  col:'#0ecbb8', region:'North America',   topoId:124 },
-  germany:     { name:'Germany',     code:'DE', type:'dest',   lat:51.2,  lon:10.5,   col:'#0ecbb8', region:'Western Europe',  topoId:276 },
-  sweden:      { name:'Sweden',      code:'SE', type:'dest',   lat:62.0,  lon:15.0,   col:'#0ecbb8', region:'Northern Europe', topoId:752 },
-  australia:   { name:'Australia',   code:'AU', type:'dest',   lat:-25.0, lon:133.8,  col:'#0ecbb8', region:'Oceania',         topoId:36  },
-  uae:         { name:'UAE',         code:'AE', type:'dest',   lat:23.4,  lon:53.8,   col:'#0ecbb8', region:'Middle East',     topoId:784 }
+  mexico:      { name:'Mexico',      code:'MX', type:'origin', lat:23.6,  lon:-102.5, region:'Central America', topoId:484, stat:'4.8M emigrants/year', fact:'Largest source of US immigrants. Economic & gang-violence push.' },
+  honduras:    { name:'Honduras',    code:'HN', type:'origin', lat:14.1,  lon:-86.2,  region:'Central America', topoId:340, stat:'1 in 8 born abroad', fact:'Northern Triangle displacement driven by gang violence (MS-13).' },
+  syria:       { name:'Syria',       code:'SY', type:'origin', lat:35.0,  lon:38.3,   region:'Middle East',     topoId:760, stat:'6.8M refugees (2024)', fact:'Largest refugee crisis since WWII. Civil war began 2011.' },
+  nigeria:     { name:'Nigeria',     code:'NG', type:'origin', lat:9.1,   lon:8.7,    region:'West Africa',     topoId:566, stat:'1.9M in European diaspora', fact:'Brain drain: 75K doctors left since 1990. Boko Haram displacement.' },
+  venezuela:   { name:'Venezuela',   code:'VE', type:'origin', lat:7.5,   lon:-66.6,  region:'South America',   topoId:862, stat:'7.7M displaced (2024)', fact:'Largest displacement crisis in Western Hemisphere. Hyperinflation push.' },
+  afghanistan: { name:'Afghanistan', code:'AF', type:'origin', lat:33.9,  lon:67.7,   region:'Central Asia',    topoId:4,   stat:'5.7M refugees abroad', fact:'Taliban takeover (2021) triggered mass flight. 3rd largest refugee source.' },
+  usa:         { name:'USA',         code:'US', type:'dest',   lat:37.1,  lon:-98.5,  region:'North America',   topoId:840, stat:'50M foreign-born (15%)', fact:'HDI: 0.921. Strong job market, but complex visa system.' },
+  canada:      { name:'Canada',      code:'CA', type:'dest',   lat:58.0,  lon:-96.8,  region:'North America',   topoId:124, stat:'21% immigrant population', fact:'HDI: 0.935. Points-based immigration system, world leader in refugees.' },
+  germany:     { name:'Germany',     code:'DE', type:'dest',   lat:51.2,  lon:10.5,   region:'Western Europe',  topoId:276, stat:'16M immigrants (19%)', fact:'HDI: 0.942. Took 1M+ Syrian refugees in 2015. Strong asylum system.' },
+  sweden:      { name:'Sweden',      code:'SE', type:'dest',   lat:62.0,  lon:15.0,   region:'Northern Europe', topoId:752, stat:'20% foreign-born', fact:'HDI: 0.952. Universal healthcare, generous refugee quota system.' },
+  australia:   { name:'Australia',   code:'AU', type:'dest',   lat:-25.0, lon:133.8,  region:'Oceania',         topoId:36,  stat:'30% born abroad', fact:'HDI: 0.946. Skilled migration program. Strict offshore detention policy.' },
+  uae:         { name:'UAE',         code:'AE', type:'dest',   lat:23.4,  lon:53.8,   region:'Middle East',     topoId:784, stat:'88% expat workforce', fact:'HDI: 0.890. Economic magnet with no path to citizenship for migrants.' }
 };
 
 const FLAG_COLORS = {
@@ -36,6 +40,16 @@ const FLAG_COLORS = {
   nigeria:'#008751', venezuela:'#CF142B', afghanistan:'#009A44'
 };
 const DEST_W = { canada:10, germany:10, sweden:9, australia:8, usa:7, uae:6 };
+
+// ── ORIGIN ABILITIES ─────────────────────────────────────────
+const ORIGIN_BONUS = {
+  mexico:      { name:'Family Network', icon:'👨‍👩‍👧', desc:'+1 Stability when arriving at USA or Canada (chain migration).', concept:'chain' },
+  honduras:    { name:'Asylum Track',   icon:'🛡️', desc:'Visa denials cost only 1 turn instead of 2 (recognized asylum seeker).', concept:'forced' },
+  syria:       { name:'UNHCR Priority', icon:'🌍', desc:'Obstacle "pass" cards grant +1 bonus stability (UN refugee protection).', concept:'forced' },
+  nigeria:     { name:'Skills Premium', icon:'🎓', desc:'Pull cards that gain stability give +1 extra (educated migrant — brain drain).', concept:'brain' },
+  venezuela:   { name:'Regional Solidarity', icon:'🤝', desc:'Draw 1 extra pull card at each destination, keep the better one.', concept:'chain' },
+  afghanistan: { name:'Crisis Recognition', icon:'📋', desc:'Never lose more than 2 stability from a single push card.', concept:'ravenstein' }
+};
 
 // ── CARD DECKS ──────────────────────────────────────────────
 const PUSH_DECK = [
@@ -69,18 +83,20 @@ const OBS_DECK = [
   { icon:'U', title:'Underground Network', eff:'pass',      val:0, sc:0,  desc:'Hidden network provides secret safe passage.',        hug:'chain',    pass:true  }
 ];
 const PULL_DECK = [
-  { icon:'J', title:'Strong Job Market',     effect:3, desc:'Low unemployment. Wages draw migrants from afar.',       hug:'pull',     redirect:false },
-  { icon:'F', title:'Family Already Here',   effect:2, desc:'Relatives provide housing and networks on arrival.',     hug:'chain',    redirect:false },
-  { icon:'H', title:'Free Healthcare',        effect:2, desc:'Universal coverage eases the burden of settling.',       hug:'pull',     redirect:false },
-  { icon:'O', title:'Overcrowded',            effect:0, desc:'No capacity. You must choose another destination.',      hug:'obstacle', redirect:true  },
-  { icon:'W', title:'High Wages',             effect:3, desc:'Purchasing power vastly exceeds origin country.',        hug:'pull',     redirect:false },
-  { icon:'R', title:'Refugee Policy',         effect:2, desc:'Government actively supports newcomers.',                hug:'forced',   redirect:false },
-  { icon:'C', title:'Cultural Community',     effect:2, desc:'Diaspora provides immediate belonging and support.',     hug:'chain',    redirect:false },
-  { icon:'E', title:'Educational Access',     effect:1, desc:'World-class universities open to immigrants.',           hug:'pull',     redirect:false },
-  { icon:'K', title:'Cold Climate Shock',     effect:1, desc:'Integration slower than expected. Difficult adjustment.',hug:'obstacle', redirect:false },
-  { icon:'S', title:'Housing Shortage',       effect:1, desc:'Accommodation scarce. You find something, barely.',      hug:'obstacle', redirect:false },
-  { icon:'P', title:'Political Stability',    effect:2, desc:'Rule of law and functioning institutions — a relief.',   hug:'pull',     redirect:false },
-  { icon:'L', title:'Remote, Low Demand',     effect:1, desc:'Work exists but isolation is significant.',              hug:'pull',     redirect:false }
+  { icon:'J', title:'Strong Job Market',        effect:3, desc:'Low unemployment. Wages draw migrants from afar. Classic economic pull factor.',        hug:'pull',         redirect:false },
+  { icon:'F', title:'Family Already Here',      effect:2, desc:'Relatives provide housing and social networks — the backbone of chain migration.',      hug:'chain',        redirect:false },
+  { icon:'H', title:'Free Healthcare',          effect:2, desc:'Universal coverage eases settlement. Countries with public health attract more migrants.',hug:'pull',         redirect:false },
+  { icon:'O', title:'Destination Overcrowded',  effect:0, desc:'ARIA occupies this country. No capacity — choose another destination.',                  hug:'intervening',  redirect:true  },
+  { icon:'W', title:'High Wages',               effect:3, desc:'Purchasing power far exceeds origin country. The primary pull across all migration eras.', hug:'pull',        redirect:false },
+  { icon:'R', title:'Strong Refugee Policy',    effect:2, desc:'Government actively supports newcomers with legal status and integration programs.',      hug:'forced',       redirect:false },
+  { icon:'C', title:'Cultural Community',       effect:2, desc:'Established diaspora provides immediate belonging, language support, and job referrals.',  hug:'chain',        redirect:false },
+  { icon:'E', title:'Educational Access',       effect:2, desc:'World-class universities open to immigrants. Education as a pull factor (Ravenstein).',  hug:'pull',         redirect:false },
+  { icon:'T', title:'Transnational Ties',       effect:2, desc:'You maintain economic and cultural links home. Remittances flow. Dual identity formed.',  hug:'transnational', redirect:false },
+  { icon:'I', title:'Intervening Opportunity',  effect:2, desc:'A better option found en route changes your plans. Stouffer\'s Law in action (1940).',   hug:'intervening',  redirect:false },
+  { icon:'K', title:'Climate Shock',            effect:0, desc:'Integration is harder than expected. Cultural distance proves a real obstacle.',          hug:'obstacle',     redirect:false },
+  { icon:'S', title:'Housing Shortage',         effect:1, desc:'Accommodation scarce but found. Urban pull factors attract more migrants than supply.',   hug:'pull',         redirect:false },
+  { icon:'P', title:'Political Stability',      effect:2, desc:'Rule of law and functioning institutions — a profound relief from origin conditions.',    hug:'pull',         redirect:false },
+  { icon:'B', title:'Brain Gain',               effect:3, desc:'Your skills are highly valued. Host country gains your human capital — their brain gain.', hug:'brain',        redirect:false }
 ];
 
 // ── GAME STATE ──────────────────────────────────────────────
@@ -90,7 +106,7 @@ let G = {
   pWait:0, bWait:0,
   conceptsSeen: new Set(),
   pendingObsCard: null,
-  p:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], statsLost:0, statsGained:0 },
+  p:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], statsLost:0, statsGained:0, bonus:null },
   b:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[] },
   decks:{ push:[], obs:[], pull:[] },
   log:[]
@@ -139,6 +155,15 @@ function updateP(){
   document.getElementById('pTurnsHere').textContent=p.turnsHere;
   document.getElementById('pCountries').textContent=p.visited.length;
   document.getElementById('pVisited').textContent=p.visited.map(k=>CTRY[k]?.name).join(' → ')||'—';
+  // Crisis mode visual when stability is critical
+  const pp=document.getElementById('playerPanel');
+  if(p.stab<=2) pp.classList.add('crisis'); else pp.classList.remove('crisis');
+  // Progress dots for settlement (need 3 turns at destination)
+  const ph=document.getElementById('pTurnsHere');
+  if(ph&&CTRY[p.country]?.type==='dest'){
+    const dots='●'.repeat(Math.min(p.turnsHere,3))+'○'.repeat(Math.max(0,3-p.turnsHere));
+    ph.textContent=p.turnsHere+' '+dots;
+  }
 }
 function updateA(){
   const b=G.b, c=CTRY[b.country]||{};
@@ -186,10 +211,18 @@ function updatePresence(){
 
 // ── CARD HTML BUILDER ───────────────────────────────────────
 function cardInnerHTML(card, deckType){
-  const typeLabel=deckType==='push'?'Push Factor':deckType==='obs'?'Obstacle':'Pull Factor';
+  // Correctly label special cards
+  let typeLabel;
+  if(card.redirect) typeLabel='Destination Event';
+  else if(deckType==='push') typeLabel='Push Factor';
+  else if(deckType==='obs') typeLabel='Obstacle';
+  else typeLabel='Pull Factor';
+
   const eff=card.effect!==undefined?card.effect:(card.sc||0);
   const effHtml=eff!==0?`<div class="c-eff">${eff>0?'+':''}${eff} Stability</div>`:'';
-  const conceptName=CONCEPTS[card.hug]?.name.split('(')[0].trim()||'';
+  const concept=CONCEPTS[card.hug];
+  const conceptName=concept?.name||'';
+  const conceptUnit=concept?.unit||'';
   seeConcept(card.hug);
   return `
     <div class="c-type">${typeLabel}</div>
@@ -197,7 +230,7 @@ function cardInnerHTML(card, deckType){
     <div class="c-title">${card.title}</div>
     <div class="c-desc">${card.desc}</div>
     ${effHtml}
-    ${conceptName?`<div class="c-concept">${conceptName}</div>`:''}
+    ${conceptName?`<div class="c-concept"><span class="c-unit">${conceptUnit}</span> ${conceptName}</div>`:''}
   `;
 }
 
@@ -406,10 +439,13 @@ function buildStartScreen(){
   g.innerHTML=ORIGINS.map(k=>{
     const c=CTRY[k];
     const fc=FLAG_COLORS[k]||'#444';
+    const ob=ORIGIN_BONUS[k];
     return `<div class="ss-opt" onclick="pickCountry('${k}',this)">
       <div class="ss-flag" style="background:${fc}">${c.code}</div>
       <div class="ss-cname">${c.name}</div>
       <div class="ss-creg">${c.region}</div>
+      <div class="ss-stat-line">${c.stat}</div>
+      <div class="ss-bonus-lbl">${ob.name}</div>
     </div>`;
   }).join('');
 }
@@ -423,7 +459,7 @@ function startGame(){
   if(!selCountry) return;
   const bots=ORIGINS.filter(k=>k!==selCountry);
   const botC=bots[Math.floor(Math.random()*bots.length)];
-  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=8;
+  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=8; G.p.bonus=ORIGIN_BONUS[selCountry];
   G.b.country=botC; G.b.visited=[botC]; G.b.stab=8;
   G.decks.push=shuffle([...PUSH_DECK]);
   G.decks.obs=shuffle([...OBS_DECK]);
@@ -431,8 +467,12 @@ function startGame(){
   document.getElementById('startScreen').style.display='none';
   updateP(); updateA(); updatePresence();
   updateDecks();
-  addLog(`Journey begins. You: ${CTRY[selCountry].name}. ARIA: ${CTRY[botC].name}.`,'sys');
-  setTimeout(pushPhase, 300);
+  const ob=G.p.bonus;
+  addLog(`Journey begins from ${CTRY[selCountry].name}.`,'sys');
+  addLog(`Origin ability: ${ob.name} — ${ob.desc}`,'pull');
+  addLog(`ARIA starts in ${CTRY[botC].name}.`,'sys');
+  setAria(`ARIA initialized. Analyzing ${CTRY[botC].name} as origin. 6 destination vectors mapped.`);
+  setTimeout(pushPhase, 400);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -467,12 +507,15 @@ function doPushDraw(){
   setActions('');
   const pCard=draw('push');
   const bCard=draw('push');
-  G.p.stab=clamp(G.p.stab+pCard.effect,0,10);
-  if(pCard.effect<0) G.p.statsLost=(G.p.statsLost||0)+Math.abs(pCard.effect);
+  // Afghanistan bonus: crisis recognition — no single push card can drop you more than 2
+  let pEff=pCard.effect;
+  if(G.p.visited[0]==='afghanistan'&&pEff<-2){ pEff=-2; addLog(`Crisis Recognition: damage capped at -2.`,'pull'); }
+  G.p.stab=clamp(G.p.stab+pEff,0,10);
+  if(pEff<0) G.p.statsLost=(G.p.statsLost||0)+Math.abs(pEff);
   G.b.stab=clamp(G.b.stab+bCard.effect,0,10);
   G.pMigrating=pCard.must||G.p.stab<=0;
   G.bMigrating=bCard.must||G.b.stab<=0;
-  if(pCard.effect<0) flash('r'); else flash('g');
+  if(pEff<0) flash('r'); else flash('g');
 
   // Show both cards with flip animation
   setCards(`
@@ -482,16 +525,21 @@ function doPushDraw(){
   setTimeout(()=>{ revealCard('your-push',pCard,'push','Your Push'); },50);
   setTimeout(()=>{ revealCard('aria-push',bCard,'push',"ARIA's Push"); },250);
 
-  addLog(`Push: "${pCard.title}" (${pCard.effect} stab)`,'push');
-  addLog(`ARIA push: "${bCard.title}" (${bCard.effect} stab)`,'push');
+  addLog(`Push: "${pCard.title}" (${pEff>=0?'+':''}${pEff} Stability)`,'push');
+  addLog(`ARIA push: "${bCard.title}" (${bCard.effect>=0?'+':''}${bCard.effect} Stability)`,'push');
   updateP(); updateA();
   updateDecks();
 
-  const mustNote=G.pMigrating?' You must migrate!':'';
-  setDesc(`Your stability: ${G.p.stab}/10.${mustNote} What will you do?`);
-  setAria(`ARIA stability: ${G.b.stab}/10. ${G.b.stab<3?'Migration threshold reached.':'Holding position.'}`);
+  const mustNote=G.pMigrating?' You must migrate immediately!':'';
+  setDesc(`Your stability: ${G.p.stab}/10.${mustNote} Stay or migrate?`);
+  // Dynamic ARIA commentary
+  const ariaLines=G.b.tokens>=2?['My third token is within reach. Your chances are diminishing.','Settlement probability: 91%. This is nearly over.']:
+    G.b.stab<3?['Stability critical. Recalculating migration vectors.','Crisis protocol. Forced migration sequence initiated.']:
+    G.p.tokens>G.b.tokens?['You have an advantage. I am adjusting my strategy.','Unexpected player performance. Recalibrating.']:
+    ['Analyzing optimal settlement pathway.','Processing migration patterns.','Calculating route efficiency.'];
+  setAria(ariaLines[Math.floor(Math.random()*ariaLines.length)]+` Stability: ${G.b.stab}/10.`);
 
-  setTimeout(decisionPhase, 700);
+  setTimeout(decisionPhase, 800);
 }
 
 function waitTurn(){
@@ -547,23 +595,31 @@ function doObstacleDraw(){
   setTimeout(()=>{ revealCard('your-obs',card,'obs','Obstacle'); },50);
   updateDecks();
 
+  const origin=G.p.visited[0];
   if(card.pass){
-    if(card.sc){ G.p.stab=clamp(G.p.stab+card.sc,0,10); updateP(); }
+    let bonusSc=card.sc||0;
+    // Syria bonus: UN-protected migrants get +1 on all pass cards
+    if(origin==='syria'&&bonusSc>=0) bonusSc+=1;
+    if(bonusSc){ G.p.stab=clamp(G.p.stab+bonusSc,0,10); updateP(); }
     flash('g');
-    setDesc(`"${card.title}" — path is clear! ${card.desc} Now choose your destination.`);
+    setDesc(`"${card.title}" — path is clear! ${card.desc} Choose your destination.`);
     setTimeout(()=>arrivalPhase_P(null), 700);
   } else if(card.eff==='lose_turn'){
-    G.pWait=card.val; G.pMigrating=false;
+    // Honduras/Afghanistan bonus: visa denial costs 1 fewer turn
+    let turns=card.val;
+    if(origin==='honduras'||origin==='afghanistan') turns=Math.max(1,turns-1);
+    G.pWait=turns; G.pMigrating=false;
     flash('r');
-    setDesc(`"${card.title}" — you lose ${card.val} turn(s). ${card.desc}`);
-    addLog(`Lost ${card.val} turn(s).`,'obs');
-    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },600);
+    const bonusTxt=(origin==='honduras'||origin==='afghanistan')&&turns<card.val?' (Origin ability reduced wait!)':'';
+    setDesc(`"${card.title}" — you lose ${turns} turn(s).${bonusTxt} ${card.desc}`);
+    addLog(`Lost ${turns} turn(s).`,'obs');
+    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },700);
   } else if(card.eff==='return'){
     G.pMigrating=false; G.p.turnsHere=0;
     flash('r');
     setDesc(`"${card.title}" — returned to ${CTRY[G.p.country]?.name}. ${card.desc}`);
     addLog(`Returned to ${CTRY[G.p.country]?.name}.`,'obs');
-    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },600);
+    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },700);
   } else {
     flash('r');
     setDesc(`"${card.title}" — ${card.desc} Choose an available destination.`);
@@ -594,6 +650,13 @@ function chooseP(key){
   animMove(from, key, 'mdot-p', ()=>{
     G.p.country=key; G.p.turnsHere=0; G.pMigrating=true;
     if(!G.p.visited.includes(key)) G.p.visited.push(key);
+    // Mexico bonus: +1 stability arriving at North America via chain migration
+    const origin=G.p.visited[0];
+    if(origin==='mexico'&&(key==='usa'||key==='canada')){
+      G.p.stab=clamp(G.p.stab+1,0,10);
+      G.p.statsGained=(G.p.statsGained||0)+1;
+      addLog(`Family Network bonus: +1 Stability in ${CTRY[key].name}.`,'pull');
+    }
     updatePresence();
     pullPhase_P(key);
   });
@@ -607,26 +670,37 @@ function pullPhase_P(country){
 
 function doPullDraw(country){
   setActions('');
+  const origin=G.p.visited[0];
+  // Venezuela bonus: draw 2 pull cards, keep the better one
+  const isVenezuela=origin==='venezuela';
   const card=draw('pull');
-  seeConcept(card.hug);
+  const card2=isVenezuela?draw('pull'):null;
+  const chosen=card2&&(card2.effect||0)>(card.effect||0)?card2:card;
+  if(card2&&chosen===card2){ G.decks.pull.push(card); } // return worse card
+  else if(card2){ G.decks.pull.push(card2); }
+
+  seeConcept(chosen.hug);
   updateDecks();
 
   const existing=document.getElementById('cardRow').innerHTML;
   setCards(existing+`<div class="card-wrap" id="your-pull"></div>`);
-  setTimeout(()=>{ revealCard('your-pull',card,'pull','Pull Factor'); },50);
+  const pullLbl=isVenezuela?'Pull Factor (Best of 2)':'Pull Factor';
+  setTimeout(()=>{ revealCard('your-pull',chosen,'pull',pullLbl); },50);
 
-  if(card.redirect && G.b.country===country){
+  if(chosen.redirect && G.b.country===country){
     flash('r');
-    addLog(`Overcrowded! ${CTRY[country]?.name} is full. Redirect!`,'sys');
-    seeConcept('obstacle');
-    setDesc(`"${card.title}" — destination overcrowded. You must choose again.`);
+    addLog(`Overcrowded! ${CTRY[country]?.name} is at capacity. Intervening obstacle forces redirect.`,'obs');
+    seeConcept('intervening');
+    setDesc(`"${chosen.title}" — destination at capacity. Intervening obstacle — choose another.`);
     setTimeout(()=>arrivalPhase_P(null), 700);
     return;
   }
-  const eff=card.effect||0;
+  let eff=chosen.effect||0;
+  // Nigeria bonus: positive pull card effects gain +1
+  if(origin==='nigeria'&&eff>0){ eff+=1; addLog(`Skills Premium bonus: +1 extra Stability.`,'pull'); }
   if(eff){ G.p.stab=clamp(G.p.stab+eff,0,10); if(eff>0){G.p.statsGained+=eff; flash('g');} }
-  addLog(`Pull in ${CTRY[country]?.name}: "${card.title}" (${eff>=0?'+':''}${eff})`,'pull');
-  setDesc(`Arrived in ${CTRY[country]?.name}! Pull: "${card.title}" (${eff>=0?'+':''}${eff} Stability). Now watch ARIA's move.`);
+  addLog(`Pull in ${CTRY[country]?.name}: "${chosen.title}" (${eff>=0?'+':''}${eff})`,'pull');
+  setDesc(`Arrived in ${CTRY[country]?.name}! Pull: "${chosen.title}" (${eff>=0?'+':''}${eff} Stability). Now watch ARIA's move.`);
   updateP();
   setTimeout(()=>{ setActions(`<button class="btn btn-teal" onclick="botDecision()">ARIA's Turn</button>`); },700);
 }
@@ -717,15 +791,15 @@ function settlement(){
   G.pMigrating=false; G.bMigrating=false;
 
   let pSettled=false, bSettled=false;
-  if(G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=2){
+  if(G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3){
     G.p.tokens++; G.p.turnsHere=0; pSettled=true;
     seeConcept('settlement');
-    addLog(`Settlement token earned in ${CTRY[G.p.country]?.name}!`,'pull');
+    addLog(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3)`,'pull');
     flash('g'); confetti();
   }
-  if(G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=2){
+  if(G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3){
     G.b.tokens++; G.b.turnsHere=0; bSettled=true;
-    addLog(`ARIA token earned in ${CTRY[G.b.country]?.name}.`,'sys');
+    addLog(`ARIA earned a settlement token in ${CTRY[G.b.country]?.name}! (${G.b.tokens}/3)`,'obs');
   }
   updateP(); updateA(); updatePresence();
 
@@ -734,11 +808,16 @@ function settlement(){
   if(G.turn>=G.maxTurns){ endGame(G.p.tokens>=G.b.tokens?'p':'b'); return; }
 
   G.turn++;
+  const turnsLeft=3-G.p.turnsHere;
+  const atDest=G.p.country&&CTRY[G.p.country]?.type==='dest';
   if(pSettled){
-    setDesc(`Token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Get 2 more tokens to win!`);
+    setDesc(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Need ${3-G.p.tokens} more to win.`);
     setActions(`<button class="btn btn-primary" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
+  } else if(atDest&&G.p.turnsHere>0){
+    setDesc(`Turn ${G.turn-1} complete. ${turnsLeft} more turn${turnsLeft!==1?'s':''} in ${CTRY[G.p.country]?.name} to earn a token.`);
+    setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else {
-    setDesc(`Turn ${G.turn-1} complete. Ready for next turn?`);
+    setDesc(`Turn ${G.turn-1} complete. Reach a destination and stay 3 turns to earn a settlement token.`);
     setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   }
 }
