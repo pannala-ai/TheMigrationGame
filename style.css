@@ -41,7 +41,7 @@ html,body{
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ── APP LAYOUT ─────────────────────────────────────── */
-#app{display:grid;grid-template-rows:52px 1fr 240px;height:100vh;width:100vw;overflow:hidden}
+#app{display:grid;grid-template-rows:52px 1fr 272px;height:100vh;width:100vw;overflow:hidden}
 
 /* ── HEADER ─────────────────────────────────────────── */
 #topBar{
@@ -208,7 +208,8 @@ html,body{
 .az-col{padding:10px 12px;border-right:1px solid var(--border2);display:flex;flex-direction:column;gap:6px;overflow:hidden}
 .az-col:last-child{border-right:none}
 .az-title{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--gold);letter-spacing:0.6px}
-.phase-desc{font-size:11px;color:var(--text2);line-height:1.6;font-weight:400}
+.phase-desc{font-size:11px;color:var(--text2);line-height:1.6;font-weight:400;transition:color 0.3s}
+.phase-desc.highlight{color:var(--green2);font-weight:600}
 .log-entries{display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1;min-height:0}
 .le{font-size:10px;color:var(--text2);padding:2px 5px;border-radius:4px;line-height:1.4;animation:leIn 0.2s ease-out}
 @keyframes leIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
@@ -217,7 +218,7 @@ html,body{
 /* Center action zone */
 .az-center{
   border-right:1px solid var(--border2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 16px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px 16px;
 }
 #cardRow{display:flex;gap:10px;align-items:flex-start;justify-content:center;min-height:136px}
 #actionBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}

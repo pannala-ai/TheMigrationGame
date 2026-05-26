@@ -106,8 +106,8 @@ let G = {
   pWait:0, bWait:0,
   conceptsSeen: new Set(),
   pendingObsCard: null,
-  p:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], statsLost:0, statsGained:0, bonus:null },
-  b:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[] },
+  p:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], statsLost:0, statsGained:0, bonus:null, settledIn:[] },
+  b:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], settledIn:[] },
   decks:{ push:[], obs:[], pull:[] },
   log:[]
 };
@@ -185,7 +185,7 @@ function setPhase(name, cls){
   pill.textContent='◆ '+(labels[name]||name);
   pill.className='phase-pill '+(cls||name);
 }
-function setDesc(t){ document.getElementById('phaseDesc').textContent=t; }
+function setDesc(t,highlight=false){ const el=document.getElementById('phaseDesc'); if(!el) return; el.textContent=t; el.className='phase-desc'+(highlight?' highlight':''); }
 function setAria(t){ document.getElementById('ariaText').textContent=t; }
 function setCards(html){ document.getElementById('cardRow').innerHTML=html; }
 function setActions(html){ document.getElementById('actionBtns').innerHTML=html; }
@@ -553,7 +553,16 @@ function decisionPhase(){
     setActions(`<button class="btn btn-migrate" onclick="goToObstacle()">Migrate Now</button>`);
     return;
   }
-  setDesc(`Stability: ${G.p.stab}/10. Stay in ${CTRY[G.p.country]?.name} or move to a destination country?`);
+  const atDest=CTRY[G.p.country]?.type==='dest';
+  const alreadySettled=atDest&&G.p.settledIn.includes(G.p.country);
+  const turnsProgress=atDest&&!alreadySettled?` (${G.p.turnsHere}/3 turns for token)`:'';
+  const settledNote=alreadySettled?' Already earned token here — migrate for next one!':'';
+  if(alreadySettled){
+    setDesc(`Stability: ${G.p.stab}/10. Token already earned in ${CTRY[G.p.country]?.name}. You must migrate to a new destination for the next token!`);
+    setActions(`<button class="btn btn-migrate" onclick="goToObstacle()">Migrate to New Country</button>`);
+    return;
+  }
+  setDesc(`Stability: ${G.p.stab}/10.${turnsProgress}${settledNote} Stay or migrate?`);
   setActions(`
     <button class="btn btn-stay" onclick="stayDecision()">Stay Here</button>
     <button class="btn btn-migrate" onclick="goToObstacle()">Migrate</button>
@@ -664,7 +673,7 @@ function chooseP(key){
 
 function pullPhase_P(country){
   setPhase('pull');
-  setDesc(`You have arrived in ${CTRY[country]?.name}! Draw a Pull card to see what awaits you.`);
+  setDesc(`You arrived in ${CTRY[country]?.name}! Draw your Pull card to see what opportunity awaits.`,true);
   setActions(`<button class="btn btn-draw-pull" onclick="doPullDraw('${country}')">Draw Pull Card</button>`);
 }
 
@@ -729,7 +738,7 @@ function botAct(){
   const shouldMove=G.bMigrating||G.b.stab<3||Math.random()<0.35;
   if(!shouldMove){
     addLog(`ARIA stays in ${CTRY[G.b.country]?.name}.`,'sys');
-    setAria(`ARIA holds position in ${CTRY[G.b.country]?.name}. Stability: ${G.b.stab}/10. Progress: ${G.b.turnsHere}/2.`);
+    setAria(`ARIA holds position in ${CTRY[G.b.country]?.name}. Stability: ${G.b.stab}/10. Progress: ${G.b.turnsHere}/3.`);
     setDesc(`ARIA stays in ${CTRY[G.b.country]?.name}. Processing settlement...`);
     setTimeout(settlement, 400);
     return;
@@ -791,15 +800,21 @@ function settlement(){
   G.pMigrating=false; G.bMigrating=false;
 
   let pSettled=false, bSettled=false;
-  if(G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3){
+  const pCanSettle=G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3&&!G.p.settledIn.includes(G.p.country);
+  const bCanSettle=G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3&&!G.b.settledIn.includes(G.b.country);
+  if(pCanSettle){
     G.p.tokens++; G.p.turnsHere=0; pSettled=true;
+    G.p.settledIn.push(G.p.country);
+    G.pMigrating=true; // must move to earn next token at new destination
     seeConcept('settlement');
-    addLog(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3)`,'pull');
+    addLog(`Settlement token earned in ${CTRY[G.p.country]?.name}! Must migrate next turn. (${G.p.tokens}/3)`,'pull');
     flash('g'); confetti();
   }
-  if(G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3){
+  if(bCanSettle){
     G.b.tokens++; G.b.turnsHere=0; bSettled=true;
-    addLog(`ARIA earned a settlement token in ${CTRY[G.b.country]?.name}! (${G.b.tokens}/3)`,'obs');
+    G.b.settledIn.push(G.b.country);
+    G.bMigrating=true;
+    addLog(`ARIA settled in ${CTRY[G.b.country]?.name}! (${G.b.tokens}/3)`,'obs');
   }
   updateP(); updateA(); updatePresence();
 
