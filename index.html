@@ -5,392 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roots &amp; Routes — A Game of Human Migration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --navy:#0f2236;
-  --navy2:#162d48;
-  --parchment:#f0e6c8;
-  --gold:#c4933f;
-  --gold2:#e2b96a;
-  --forest:#234f3a;
-  --teal:#1a7a6e;
-  --teal2:#2aa898;
-  --amber:#b8632a;
-  --amber2:#d4854a;
-  --danger:#c0303c;
-  --danger2:#e05060;
-  --steel:#2e5f80;
-  --steel2:#4a85a8;
-  --ink:#0a1520;
-  --mist:rgba(240,230,200,0.06);
-}
-html,body{height:100%;overflow:hidden;background:var(--navy)}
-body{font-family:'Source Serif 4',serif;color:var(--parchment);font-size:13px;line-height:1.5}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:rgba(0,0,0,0.2)}
-::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
-
-/* ── LAYOUT ─────────────────────────────────────── */
-#app{display:grid;grid-template-rows:52px 1fr 172px;height:100vh;width:100vw;overflow:hidden}
-
-/* ── TOP BAR ─────────────────────────────────────── */
-#topBar{
-  background:linear-gradient(90deg,#080f18 0%,var(--navy2) 30%,var(--navy2) 70%,#080f18 100%);
-  border-bottom:1px solid rgba(196,147,63,0.4);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;position:relative;z-index:20;
-  box-shadow:0 2px 24px rgba(0,0,0,0.6);
-}
-.tb-brand{display:flex;flex-direction:column;gap:0}
-.tb-title{
-  font-family:'Playfair Display',serif;font-size:20px;font-weight:900;
-  color:var(--gold2);letter-spacing:1.5px;line-height:1;
-}
-.tb-sub{font-size:8.5px;letter-spacing:3.5px;text-transform:uppercase;color:rgba(196,147,63,0.5);font-style:italic}
-.tb-center{display:flex;align-items:center;gap:16px}
-.tb-badge{
-  text-align:center;background:rgba(0,0,0,0.35);
-  border:1px solid rgba(196,147,63,0.25);border-radius:5px;padding:3px 14px;
-}
-.tb-badge .bl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,147,63,0.5);display:block}
-.tb-badge .bv{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold2);line-height:1.1}
-#phaseTag{
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--parchment);background:rgba(0,0,0,0.4);
-  border:1px solid rgba(196,147,63,0.35);border-radius:20px;
-  padding:5px 16px;transition:background 0.3s;
-}
-.tb-right{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,147,63,0.4);text-align:right}
-.tb-right strong{display:block;font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:rgba(196,147,63,0.65);letter-spacing:1px}
-
-/* ── MAIN AREA ───────────────────────────────────── */
-#main{display:grid;grid-template-columns:210px 1fr 210px;overflow:hidden;position:relative}
-
-/* ── SIDE PANELS ─────────────────────────────────── */
-.panel{
-  background:linear-gradient(180deg,rgba(8,18,30,0.97) 0%,rgba(12,24,40,0.97) 100%);
-  border-right:1px solid rgba(196,147,63,0.15);
-  padding:14px 12px;display:flex;flex-direction:column;gap:11px;overflow:hidden;
-}
-#botPanel{border-right:none;border-left:1px solid rgba(196,147,63,0.15)}
-.p-head{
-  font-family:'Playfair Display',serif;font-size:11px;font-weight:700;
-  color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;
-  border-bottom:1px solid rgba(196,147,63,0.2);padding-bottom:8px;
-}
-.p-identity{display:flex;gap:9px;align-items:center}
-.p-avatar{
-  width:40px;height:40px;border-radius:50%;
-  background:rgba(196,147,63,0.08);border:1.5px solid var(--gold);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold2);
-}
-.p-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--parchment);line-height:1.1}
-.p-loc{font-size:10px;color:rgba(240,230,200,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
-
-/* Stability bar */
-.stab-wrap{margin-bottom:2px}
-.stab-head{display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(196,147,63,0.6);margin-bottom:5px}
-.stab-track{height:8px;background:rgba(0,0,0,0.5);border-radius:4px;border:1px solid rgba(196,147,63,0.15);overflow:hidden}
-.stab-fill{height:100%;border-radius:4px;transition:width 0.7s cubic-bezier(0.4,0,0.2,1),background-color 0.7s}
-.s-high{background:linear-gradient(90deg,#1a4f2e,#2e8b57)}
-.s-mid{background:linear-gradient(90deg,#5a3a00,#b8832a)}
-.s-low{background:linear-gradient(90deg,#5a0f14,#c0303c)}
-
-/* Tokens */
-.tok-row{display:flex;gap:7px;margin-top:2px}
-.tok{
-  width:22px;height:22px;border-radius:50%;
-  border:1.5px solid rgba(196,147,63,0.3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;color:rgba(196,147,63,0.3);
-  transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);
-}
-.tok.on{
-  background:radial-gradient(circle at 40% 35%,#f0d070,#c4933f);
-  border-color:var(--gold2);color:#3a2000;font-size:13px;
-  box-shadow:0 0 12px rgba(196,147,63,0.5);
-  animation:tokPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes tokPop{0%{transform:scale(0) rotate(-180deg)}100%{transform:scale(1) rotate(0)}}
-.p-stat{display:flex;justify-content:space-between;align-items:baseline}
-.p-stat-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(196,147,63,0.55)}
-.p-stat-v{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--parchment)}
-.p-visited{font-size:10px;color:rgba(240,230,200,0.45);line-height:1.8;max-height:56px;overflow-y:auto}
-
-/* ── MAP ─────────────────────────────────────────── */
-#mapWrap{position:relative;overflow:hidden;background:#091520}
-#worldMap{width:100%;height:100%;display:block}
-
-/* Continent fills */
-.land{fill:#d8c98a;stroke:#b8a55a;stroke-width:0.6;opacity:0.9}
-.ocean{fill:#091d2e}
-.grid-ln{stroke:rgba(196,147,63,0.1);stroke-width:0.4;fill:none}
-.equator{stroke:rgba(196,147,63,0.22);stroke-width:0.7;fill:none}
-
-/* Route lines */
-.route{stroke:rgba(196,147,63,0.2);stroke-width:0.8;stroke-dasharray:5 5;fill:none;animation:routeAnim 3s linear infinite}
-@keyframes routeAnim{to{stroke-dashoffset:-10}}
-
-/* Country nodes */
-.cn-glow{fill:none;stroke-width:2;opacity:0;animation:cnPulse 2.5s ease-in-out infinite}
-.cn-o .cn-glow{stroke:var(--amber2)}
-.cn-d .cn-glow{stroke:var(--teal2)}
-@keyframes cnPulse{0%,100%{opacity:0;stroke-width:2}50%{opacity:0.5;stroke-width:3}}
-.cn-ring{fill:none;stroke-width:1.5}
-.cn-o .cn-ring{stroke:var(--amber)}
-.cn-d .cn-ring{stroke:var(--teal)}
-.cn-dot{transition:r 0.3s}
-.cn-o .cn-dot{fill:var(--amber)}
-.cn-d .cn-dot{fill:var(--teal2)}
-.cn-lbl{font-family:'Source Serif 4',serif;font-size:7px;fill:var(--parchment);text-anchor:middle;font-weight:600;letter-spacing:0.3px}
-.cn-lbg{fill:rgba(5,15,28,0.75);rx:2}
-
-/* Presence rings */
-.pr-ring{fill:none;stroke-width:2;animation:prPulse 1.8s ease-in-out infinite}
-.pr-p{stroke:var(--gold2)}
-.pr-b{stroke:var(--teal2)}
-@keyframes prPulse{0%,100%{opacity:0.9}50%{opacity:0.35}}
-
-/* Migration dot */
-.mdot{r:4.5;filter:drop-shadow(0 0 5px currentColor);opacity:0;transition:opacity 0.2s}
-#mdot-p{fill:var(--gold2);color:var(--gold2)}
-#mdot-b{fill:var(--teal2);color:var(--teal2)}
-
-/* Continent labels */
-.clbl{font-family:'Source Serif 4',serif;font-size:8.5px;fill:rgba(60,40,10,0.45);font-style:italic;letter-spacing:2.5px;text-anchor:middle;font-variant:small-caps}
-
-/* ARIA thinking */
-#ariaSpin{
-  position:absolute;bottom:10px;right:10px;
-  background:rgba(5,15,28,0.88);border:1px solid rgba(74,133,168,0.4);
-  border-radius:20px;padding:4px 12px;font-size:10px;color:var(--steel2);
-  display:none;align-items:center;gap:6px;z-index:8;backdrop-filter:blur(4px);
-}
-#ariaSpin.on{display:flex}
-.dots span{display:inline-block;animation:dotBounce 1s ease-in-out infinite;font-size:16px;line-height:1}
-.dots span:nth-child(2){animation-delay:.2s}
-.dots span:nth-child(3){animation-delay:.4s}
-@keyframes dotBounce{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-4px);opacity:1}}
-
-/* Concepts sidebar */
-#cSide{
-  position:absolute;left:0;top:0;bottom:0;width:30px;
-  background:rgba(8,18,30,0.92);border-right:1px solid rgba(196,147,63,0.12);
-  z-index:6;transition:width 0.28s cubic-bezier(0.4,0,0.2,1);overflow:hidden;
-  display:flex;flex-direction:column;
-}
-#cSide.open{width:200px}
-#cToggle{
-  writing-mode:vertical-rl;transform:rotate(180deg);
-  font-size:8.5px;letter-spacing:2px;text-transform:uppercase;
-  color:var(--gold);padding:12px 8px;cursor:pointer;white-space:nowrap;
-}
-#cSide.open #cToggle{writing-mode:horizontal-tb;transform:none;padding:10px 12px;border-bottom:1px solid rgba(196,147,63,0.15)}
-#cList{display:none;padding:8px 10px;overflow-y:auto;flex:1}
-#cSide.open #cList{display:block}
-.ctag{font-size:8.5px;padding:4px 7px;margin-bottom:4px;background:rgba(196,147,63,0.08);border:1px solid rgba(196,147,63,0.18);border-radius:3px;color:var(--gold2);letter-spacing:0.5px;line-height:1.4}
-
-/* ── BOTTOM PANEL ────────────────────────────────── */
-#bot{
-  background:linear-gradient(0deg,#070f1a 0%,#0c1c30 100%);
-  border-top:1px solid rgba(196,147,63,0.35);
-  display:grid;grid-template-columns:200px 1fr 200px;
-  overflow:hidden;
-}
-.bs{padding:12px 14px;border-right:1px solid rgba(196,147,63,0.1)}
-.bs:last-child{border-right:none}
-.bs-title{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,147,63,0.5);margin-bottom:8px;font-family:'Playfair Display',serif}
-
-/* Cards */
-#cardRow{display:flex;gap:10px;align-items:flex-start;justify-content:center;min-height:110px;padding:4px 0}
-.card{
-  width:124px;min-height:100px;border-radius:7px;padding:9px 10px;
-  position:relative;flex-shrink:0;
-  animation:cardIn 0.4s cubic-bezier(0.34,1.2,0.64,1) both;
-}
-@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(0.96)}to{opacity:1;transform:none}}
-.card-push{background:linear-gradient(145deg,#20080b,#480f18);border:1px solid rgba(192,48,60,0.5);box-shadow:0 0 18px rgba(192,48,60,0.2)}
-.card-obs{background:linear-gradient(145deg,#081020,#10244a);border:1px solid rgba(46,95,128,0.5);box-shadow:0 0 18px rgba(46,95,128,0.2)}
-.card-pull{background:linear-gradient(145deg,#081a10,#103820);border:1px solid rgba(35,79,58,0.6);box-shadow:0 0 18px rgba(35,79,58,0.2)}
-.c-type{font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.65;margin-bottom:5px}
-.c-icon{
-  width:22px;height:22px;border-radius:3px;margin-bottom:5px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:13px;font-weight:900;
-}
-.card-push .c-icon{background:rgba(192,48,60,0.25);color:#e87080}
-.card-obs .c-icon{background:rgba(46,95,128,0.25);color:#70a8d0}
-.card-pull .c-icon{background:rgba(35,79,58,0.25);color:#60b880}
-.c-title{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;line-height:1.25;margin-bottom:4px;color:var(--parchment)}
-.c-desc{font-size:9px;color:rgba(240,230,200,0.6);line-height:1.4}
-.c-eff{margin-top:5px;font-size:10.5px;font-weight:700}
-.c-hug{
-  position:absolute;bottom:6px;right:6px;
-  font-size:6.5px;letter-spacing:1px;text-transform:uppercase;
-  background:rgba(196,147,63,0.12);border:1px solid rgba(196,147,63,0.3);
-  border-radius:2px;padding:1px 4px;color:var(--gold);
-}
-.c-lbl{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:rgba(240,230,200,0.4);text-align:center;margin-bottom:4px}
-
-/* Actions */
-#actWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 14px}
-.pdesc{font-size:11px;font-style:italic;color:rgba(240,230,200,0.6);text-align:center;line-height:1.55;max-width:320px}
-.btnrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.btn{
-  font-family:'Playfair Display',serif;font-size:11px;font-weight:700;
-  letter-spacing:1px;text-transform:uppercase;
-  padding:8px 18px;border-radius:5px;border:none;cursor:pointer;
-  transition:transform 0.12s,box-shadow 0.12s,opacity 0.2s;position:relative;
-}
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.4)}
-.btn:active{transform:scale(0.97)}
-.btn:disabled{opacity:0.35;pointer-events:none}
-.btn-g{background:linear-gradient(135deg,var(--gold),#8a6010);color:#1a0e00;box-shadow:0 3px 12px rgba(196,147,63,0.25)}
-.btn-r{background:linear-gradient(135deg,#b02030,#6a0f18);color:#ffe0e4;box-shadow:0 3px 12px rgba(192,48,60,0.3)}
-.btn-s{background:transparent;color:var(--gold);border:1px solid rgba(196,147,63,0.5)}
-.btn-t{background:linear-gradient(135deg,var(--teal),#0f4a42);color:#c0fff8;box-shadow:0 3px 12px rgba(26,122,110,0.3)}
-#destGrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:380px}
-.dbtn{
-  font-size:10px;font-family:'Source Serif 4',serif;
-  padding:5px 10px;border-radius:4px;cursor:pointer;
-  border:1px solid rgba(74,133,168,0.4);background:rgba(74,133,168,0.08);
-  color:var(--parchment);transition:all 0.18s;
-}
-.dbtn:hover{background:rgba(74,133,168,0.25);border-color:var(--steel2);transform:translateY(-1px)}
-
-/* ARIA analysis */
-.aria-txt{font-size:10.5px;color:rgba(240,230,200,0.55);font-style:italic;line-height:1.6}
-
-/* ── EVENT LOG ───────────────────────────────────── */
-#log{
-  position:absolute;right:214px;bottom:180px;
-  width:210px;max-height:190px;
-  background:rgba(4,12,22,0.9);border:1px solid rgba(196,147,63,0.18);
-  border-radius:7px;display:flex;flex-direction:column;z-index:5;backdrop-filter:blur(6px);
-}
-.log-h{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);padding:6px 10px;border-bottom:1px solid rgba(196,147,63,0.15);background:rgba(0,0,0,0.25)}
-#logInner{flex:1;overflow-y:auto;padding:5px 7px;display:flex;flex-direction:column;gap:2px}
-.le{font-size:9.5px;color:rgba(240,230,200,0.65);line-height:1.4;padding:2px 3px;border-radius:2px;animation:leIn 0.25s ease-out}
-@keyframes leIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
-.le-push{color:#e07888}
-.le-pull{color:#70c888}
-.le-obs{color:#70a8d0}
-.le-sys{color:rgba(196,147,63,0.75)}
-
-/* ── OVERLAYS ────────────────────────────────────── */
-#flash{position:fixed;inset:0;pointer-events:none;z-index:80;opacity:0;transition:opacity 0.12s}
-.fr{background:rgba(192,48,60,0.12)}
-.fg{background:rgba(196,147,63,0.12)}
-#pCanvas{position:fixed;inset:0;pointer-events:none;z-index:70}
-
-/* ── START SCREEN ────────────────────────────────── */
-#startScreen{
-  position:fixed;inset:0;z-index:200;
-  background:radial-gradient(ellipse at 50% 40%,#1a3354 0%,#080f1a 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px;overflow-y:auto;
-}
-.ss-title{
-  font-family:'Playfair Display',serif;font-size:52px;font-weight:900;
-  color:var(--gold2);letter-spacing:3px;text-align:center;
-  text-shadow:0 0 60px rgba(196,147,63,0.3);margin-bottom:4px;
-}
-.ss-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(196,147,63,0.45);font-style:italic;text-align:center;margin-bottom:6px}
-.ss-rule{width:180px;height:1px;background:linear-gradient(90deg,transparent,rgba(196,147,63,0.4),transparent);margin:12px auto}
-.ss-intro{max-width:500px;text-align:center;color:rgba(240,230,200,0.65);font-size:12.5px;line-height:1.75;margin-bottom:28px;font-style:italic}
-.ss-pick{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(196,147,63,0.6);margin-bottom:14px;font-family:'Playfair Display',serif}
-.ss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:460px;width:100%;margin-bottom:22px}
-.ss-opt{
-  background:rgba(196,147,63,0.05);border:1px solid rgba(196,147,63,0.2);
-  border-radius:7px;padding:14px 10px;cursor:pointer;text-align:center;
-  transition:all 0.2s;position:relative;
-}
-.ss-opt:hover,.ss-opt.sel{background:rgba(196,147,63,0.12);border-color:var(--gold);box-shadow:0 0 16px rgba(196,147,63,0.15)}
-.ss-opt.sel::after{content:'';position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--gold2)}
-.ss-flag{
-  width:32px;height:22px;margin:0 auto 6px;border-radius:2px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:10px;font-weight:700;
-  letter-spacing:0.5px;
-}
-.ss-cname{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--parchment)}
-.ss-creg{font-size:8px;color:rgba(240,230,200,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
-
-/* ── GAME OVER ───────────────────────────────────── */
-#overScreen{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(5,12,22,0.97);
-  display:none;flex-direction:column;align-items:center;
-  justify-content:flex-start;padding:40px;overflow-y:auto;
-  animation:fadeUp 0.8s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-.ov-title{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--gold2);text-align:center;text-shadow:0 0 50px rgba(196,147,63,0.4);margin-bottom:6px}
-.ov-sub{font-size:14px;color:rgba(240,230,200,0.6);text-align:center;font-style:italic;max-width:600px;line-height:1.7;margin-bottom:28px}
-.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;max-width:860px;margin-bottom:24px}
-.ov-card{background:rgba(255,255,255,0.04);border:1px solid rgba(196,147,63,0.25);border-radius:10px;padding:18px}
-.ov-ch{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold2);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid rgba(196,147,63,0.15)}
-.ov-stat{font-size:11.5px;color:rgba(240,230,200,0.7);line-height:2}
-.con-entry{margin-bottom:10px;padding:8px 10px;background:rgba(196,147,63,0.04);border-left:2px solid var(--gold);border-radius:0 4px 4px 0}
-.con-name{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--gold2);margin-bottom:2px}
-.con-def{font-size:10px;color:rgba(240,230,200,0.6);line-height:1.5}
-.ov-summ{max-width:720px;width:100%;margin-bottom:22px;font-size:12px;color:rgba(240,230,200,0.7);line-height:1.85}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Start Screen -->
+<!-- ── START SCREEN ─────────────────────────────────────── -->
 <div id="startScreen">
-  <div class="ss-title">Roots &amp; Routes</div>
-  <div class="ss-sub">A Game of Human Migration</div>
-  <div class="ss-rule"></div>
-  <p class="ss-intro">You are a migrant. Forces push you from your homeland — war, drought, poverty. Forces pull you toward new countries — safety, work, family. Navigate the obstacles between. Compete against ARIA, the Automated Refugee Intelligence Agent, as you both search for a place to settle.</p>
-  <div class="ss-pick">Select your origin country</div>
-  <div class="ss-grid" id="ssGrid"></div>
-  <div class="btnrow">
-    <button class="btn btn-g" id="ssStart" disabled onclick="startGame()">Begin the Journey</button>
+  <div class="ss-card">
+    <div class="ss-title">Roots &amp; Routes</div>
+    <div class="ss-sub">A Game of Human Migration</div>
+    <div class="ss-rule"></div>
+    <p class="ss-intro">You are a migrant. Economic collapse, political violence, and environmental disaster push people from their homes. Safety, opportunity, and family pull them toward new countries. Navigate real obstacles. Compete against ARIA — the Automated Refugee Intelligence Agent — to earn three settlement tokens and win.</p>
+    <div class="ss-pick">Select your origin country</div>
+    <div class="ss-grid" id="ssGrid"></div>
+    <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Begin the Journey</button>
+    <div class="ap-tag">AP Human Geography — Migration Unit</div>
   </div>
-  <div style="margin-top:18px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(196,147,63,0.3)">AP Human Geography — Migration Unit</div>
 </div>
 
-<!-- Game Over -->
+<!-- ── GAME OVER ─────────────────────────────────────────── -->
 <div id="overScreen">
   <div class="ov-title" id="ovTitle">Victory</div>
   <p class="ov-sub" id="ovSub"></p>
   <div class="ov-grid" id="ovGrid"></div>
   <div class="ov-summ" id="ovSumm"></div>
-  <button class="btn btn-g" onclick="location.reload()">Play Again</button>
+  <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
 </div>
 
-<!-- Flash -->
-<div id="flash"></div>
-<canvas id="pCanvas"></canvas>
+<!-- ── OVERLAYS ───────────────────────────────────────────── -->
+<div id="flashOverlay"></div>
+<canvas id="confettiCanvas"></canvas>
 
-<!-- App -->
+<!-- ── APP ───────────────────────────────────────────────── -->
 <div id="app">
 
-  <!-- Top Bar -->
   <header id="topBar">
     <div class="tb-brand">
       <div class="tb-title">Roots &amp; Routes</div>
       <div class="tb-sub">A Game of Human Migration</div>
     </div>
     <div class="tb-center">
-      <div class="tb-badge"><span class="bl">Turn</span><span class="bv" id="turnNum">1</span></div>
-      <div id="phaseTag">Setup</div>
-      <div class="tb-badge"><span class="bl">Max</span><span class="bv">20</span></div>
+      <div class="tb-counter">
+        <span class="lbl">Turn</span>
+        <span class="val" id="turnNum">1</span>
+        <span class="lbl">/ 20</span>
+      </div>
+      <div class="phase-pill" id="phasePill">Setup</div>
     </div>
-    <div class="tb-right">AP Human Geography<strong>Migration Unit</strong></div>
+    <div class="tb-right">AP Human Geography &mdash; Migration Unit</div>
   </header>
 
-  <!-- Main -->
-  <div id="main">
+  <div id="mainArea">
 
     <!-- Player Panel -->
-    <div class="panel" id="pPanel">
+    <aside class="side-panel" id="playerPanel">
       <div class="p-head">Your Journey</div>
       <div class="p-identity">
         <div class="p-avatar" id="pAvatar">—</div>
@@ -399,866 +68,111 @@ body{font-family:'Source Serif 4',serif;color:var(--parchment);font-size:13px;li
           <div class="p-loc" id="pLoc">—</div>
         </div>
       </div>
-      <div class="stab-wrap">
-        <div class="stab-head"><span>Stability</span><span id="pStabN">5/10</span></div>
-        <div class="stab-track"><div class="stab-fill s-high" id="pStabBar" style="width:50%"></div></div>
-      </div>
-      <div>
-        <div class="p-stat-l" style="margin-bottom:5px">Settlement Tokens</div>
-        <div class="tok-row" id="pToks">
-          <div class="tok" id="pt0">&#9734;</div>
-          <div class="tok" id="pt1">&#9734;</div>
-          <div class="tok" id="pt2">&#9734;</div>
+      <div class="s-lbl"><span>Stability</span><span class="s-val" id="pStabNum">5/10</span></div>
+      <div class="stab-track"><div class="stab-fill" id="pStabFill" style="width:50%"></div></div>
+      <div class="tok-section">
+        <div class="lbl">Settlement Tokens</div>
+        <div class="tok-row">
+          <div class="tok" id="pt0"></div>
+          <div class="tok" id="pt1"></div>
+          <div class="tok" id="pt2"></div>
         </div>
       </div>
-      <div class="p-stat"><span class="p-stat-l">Turns Here</span><span class="p-stat-v" id="pTurns">0</span></div>
-      <div class="p-stat"><span class="p-stat-l">Countries</span><span class="p-stat-v" id="pCntries">1</span></div>
-      <div>
-        <div class="p-stat-l" style="margin-bottom:4px">Visited</div>
-        <div class="p-visited" id="pVisited">—</div>
+      <div class="stat-pair"><span class="s-lbl">Turns Here</span><span class="s-val" id="pTurnsHere">0</span></div>
+      <div class="stat-pair"><span class="s-lbl">Countries Visited</span><span class="s-val" id="pCountries">1</span></div>
+      <div class="visited-lbl">Migration Route</div>
+      <div class="visited-txt" id="pVisited">—</div>
+      <div class="concepts-wrap">
+        <div class="concepts-toggle" onclick="toggleConcepts()">
+          <span>AP Concepts Seen</span><span id="cArrow">+</span>
+        </div>
+        <div id="cList" style="display:none"></div>
       </div>
-    </div>
+    </aside>
 
     <!-- Map -->
-    <div id="mapWrap">
-      <!-- Concepts sidebar -->
-      <div id="cSide">
-        <div id="cToggle" onclick="toggleC()">Concepts</div>
-        <div id="cList"></div>
+    <div id="mapContainer">
+      <svg id="worldMap"></svg>
+      <div id="ariaBubble">
+        ARIA <div class="dots"><span></span><span></span><span></span></div>
       </div>
-
-      <svg id="worldMap" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#091d2e"/>
-            <stop offset="100%" style="stop-color:#050f1a"/>
-          </linearGradient>
-          <filter id="nodeGlowF" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="2.5" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <!-- Ocean -->
-        <rect width="1000" height="500" fill="url(#oceanGrad)"/>
-
-        <!-- Grid lines -->
-        <line x1="0" y1="83" x2="1000" y2="83" class="grid-ln"/>
-        <line x1="0" y1="167" x2="1000" y2="167" class="grid-ln"/>
-        <line x1="0" y1="333" x2="1000" y2="333" class="grid-ln"/>
-        <line x1="0" y1="417" x2="1000" y2="417" class="grid-ln"/>
-        <line x1="167" y1="0" x2="167" y2="500" class="grid-ln"/>
-        <line x1="333" y1="0" x2="333" y2="500" class="grid-ln"/>
-        <line x1="667" y1="0" x2="667" y2="500" class="grid-ln"/>
-        <line x1="833" y1="0" x2="833" y2="500" class="grid-ln"/>
-        <line x1="0" y1="250" x2="1000" y2="250" class="equator"/>
-        <text x="4" y="248" fill="rgba(196,147,63,0.2)" font-size="6" font-family="'Source Serif 4',serif">EQ</text>
-        <text x="4" y="86" fill="rgba(196,147,63,0.2)" font-size="6" font-family="'Source Serif 4',serif">60N</text>
-        <text x="4" y="170" fill="rgba(196,147,63,0.2)" font-size="6" font-family="'Source Serif 4',serif">30N</text>
-
-        <!-- ====== CONTINENTS ======
-             Equirectangular: x=(lon+180)*(1000/360)  y=(90-lat)*(500/180)
-             All nodes verified inside their continent polygon.            -->
-
-        <!-- NORTH AMERICA (Alaska→Canada→Central America)
-             Contains: Canada(233,100) USA(227,144) Mexico(210,192) Honduras(252,218) -->
-        <path class="land" d="M 38,108 L 78,55 L 138,62 L 202,42 L 302,52
-          L 368,92 L 355,155 L 310,198 L 280,230
-          L 255,232 L 228,218 L 188,205
-          L 155,188 L 148,168 L 128,152
-          L 90,142 L 55,122 Z"/>
-
-        <!-- GREENLAND -->
-        <path class="land" d="M 305,18 L 328,10 L 354,14 L 365,26
-          L 362,42 L 346,52 L 322,56 L 305,44 L 298,30 Z"/>
-
-        <!-- ICELAND -->
-        <path class="land" d="M 428,72 L 444,64 L 460,66 L 466,76
-          L 462,88 L 450,94 L 435,92 L 426,82 Z"/>
-
-        <!-- SOUTH AMERICA (Colombia→Brazil→Patagonia)
-             Contains: Venezuela(308,248) -->
-        <path class="land" d="M 270,252 L 318,222 L 405,262
-          L 422,318 L 402,385 L 358,445
-          L 308,498 L 265,472 L 242,415
-          L 236,345 L 242,278 Z"/>
-
-        <!-- EUROPE (Iberia→Mediterranean→Scandinavia)
-             Contains: Germany(528,108) Sweden(550,83) -->
-        <path class="land" d="M 470,164 L 510,172 L 548,170
-          L 582,160 L 600,138 L 608,112
-          L 595,90 L 580,66 L 558,50
-          L 536,48 L 510,58 L 486,74
-          L 465,98 L 455,130 L 465,150 Z"/>
-
-        <!-- BRITISH ISLES -->
-        <path class="land" d="M 452,93 L 466,86 L 478,90 L 479,106
-          L 468,115 L 455,113 L 447,103 Z"/>
-
-        <!-- AFRICA (Morocco→Horn→South Africa)
-             Contains: Nigeria(524,252) -->
-        <path class="land" d="M 458,155 L 572,145 L 642,218
-          L 618,338 L 550,352 L 456,308
-          L 435,240 L 450,178 Z"/>
-
-        <!-- MADAGASCAR -->
-        <path class="land" d="M 618,278 L 628,270 L 638,276 L 640,295
-          L 634,318 L 622,322 L 611,314 L 607,295 Z"/>
-
-        <!-- ASIA (Turkey→Siberia→SE Asia)
-             Contains: Syria(610,152) Afghanistan(700,175) -->
-        <path class="land" d="M 575,148 L 615,135 L 658,122
-          L 712,105 L 772,85 L 862,68
-          L 950,90 L 962,128 L 938,168
-          L 892,202 L 842,228 L 796,252
-          L 755,252 L 718,238 L 695,215
-          L 668,205 L 640,195 L 618,180 L 608,162 Z"/>
-
-        <!-- ARABIAN PENINSULA
-             Contains: UAE(644,192) -->
-        <path class="land" d="M 590,163 L 615,148 L 648,147
-          L 675,158 L 688,175 L 690,198
-          L 680,218 L 660,228 L 636,230
-          L 612,218 L 598,200 L 590,183 Z"/>
-
-        <!-- INDIA -->
-        <path class="land" d="M 714,188 L 736,184 L 755,192 L 768,210
-          L 770,232 L 758,255 L 738,268 L 715,270
-          L 694,260 L 680,243 L 678,222 L 692,205 Z"/>
-
-        <!-- SE ASIA (mainland) -->
-        <path class="land" d="M 862,148 L 898,138 L 930,142 L 950,158
-          L 955,178 L 942,198 L 920,205 L 898,202
-          L 875,192 L 862,172 Z"/>
-
-        <!-- INDONESIA / BORNEO (simplified) -->
-        <path class="land" d="M 888,215 L 914,208 L 945,212 L 958,228
-          L 955,245 L 938,252 L 914,252 L 895,242 L 886,228 Z"/>
-
-        <!-- JAPAN -->
-        <path class="land" d="M 895,118 L 912,112 L 928,122 L 930,140
-          L 920,150 L 905,148 L 892,136 Z"/>
-
-        <!-- AUSTRALIA
-             Contains: Australia(878,330) -->
-        <path class="land" d="M 820,318 L 858,305 L 902,305 L 938,318
-          L 962,340 L 975,368 L 975,395 L 960,420
-          L 932,435 L 900,440 L 868,436 L 840,424
-          L 815,405 L 800,382 L 798,355 L 808,334 Z"/>
-
-        <!-- TASMANIA -->
-        <path class="land" d="M 900,443 L 915,438 L 925,446 L 924,460
-          L 913,466 L 900,463 L 893,454 Z"/>
-
-        <!-- NEW ZEALAND (simplified) -->
-        <path class="land" d="M 978,400 L 986,392 L 993,398 L 992,412
-          L 984,418 L 976,412 Z"/>
-
-        <!-- CONTINENT LABELS -->
-        <text class="clbl" x="172" y="118">NORTH AMERICA</text>
-        <text class="clbl" x="295" y="378">SOUTH AMERICA</text>
-        <text class="clbl" x="505" y="78">EUROPE</text>
-        <text class="clbl" x="518" y="295">AFRICA</text>
-        <text class="clbl" x="762" y="118">ASIA</text>
-        <text class="clbl" x="876" y="395">AUSTRALIA</text>
-
-        <!-- MIGRATION ROUTES -->
-        <g id="routes" opacity="0.8">
-          <!-- Mexico → USA -->
-          <path class="route" d="M 210,192 Q 218,168 227,144"/>
-          <!-- Honduras → USA -->
-          <path class="route" d="M 252,218 Q 244,182 227,144"/>
-          <!-- Venezuela → USA -->
-          <path class="route" d="M 308,248 Q 278,198 227,144"/>
-          <!-- Mexico → Canada -->
-          <path class="route" d="M 210,192 Q 220,148 233,100"/>
-          <!-- Venezuela → Canada -->
-          <path class="route" d="M 308,248 Q 276,175 233,100"/>
-          <!-- Syria → Germany -->
-          <path class="route" d="M 610,152 Q 574,132 528,108"/>
-          <!-- Syria → Sweden -->
-          <path class="route" d="M 610,152 Q 582,116 550,83"/>
-          <!-- Nigeria → Germany -->
-          <path class="route" d="M 524,252 Q 524,182 528,108"/>
-          <!-- Nigeria → Sweden -->
-          <path class="route" d="M 524,252 Q 534,168 550,83"/>
-          <!-- Afghanistan → UAE -->
-          <path class="route" d="M 700,175 Q 672,180 644,192"/>
-          <!-- Afghanistan → Germany -->
-          <path class="route" d="M 700,175 Q 612,136 528,108"/>
-          <!-- Afghanistan → Australia -->
-          <path class="route" d="M 700,175 Q 790,240 878,320"/>
-          <!-- Syria → Australia -->
-          <path class="route" d="M 610,152 Q 740,214 878,320"/>
-          <!-- Nigeria → UAE -->
-          <path class="route" d="M 524,252 Q 574,222 644,192"/>
-        </g>
-
-        <!-- Migration dots -->
-        <circle class="mdot" id="mdot-p" cx="0" cy="0"/>
-        <circle class="mdot" id="mdot-b" cx="0" cy="0"/>
-
-        <!-- Country nodes (built by JS) -->
-        <g id="cnodes" filter="url(#nodeGlowF)"></g>
-
-        <!-- Compass rose -->
-        <g transform="translate(958,462)" opacity="0.55">
-          <circle cx="0" cy="0" r="20" fill="none" stroke="rgba(196,147,63,0.4)" stroke-width="0.8"/>
-          <circle cx="0" cy="0" r="16" fill="rgba(5,12,20,0.7)" stroke="none"/>
-          <polygon points="0,-14 2.5,-7 0,-9 -2.5,-7" fill="#c4933f"/>
-          <polygon points="0,14 2.5,7 0,9 -2.5,7" fill="rgba(196,147,63,0.4)"/>
-          <polygon points="14,0 7,2.5 9,0 7,-2.5" fill="rgba(196,147,63,0.4)"/>
-          <polygon points="-14,0 -7,2.5 -9,0 -7,-2.5" fill="rgba(196,147,63,0.4)"/>
-          <circle cx="0" cy="0" r="2" fill="#c4933f"/>
-          <text x="0" y="-18" font-family="'Playfair Display',serif" font-size="7" fill="#c4933f" text-anchor="middle" font-weight="700">N</text>
-        </g>
-
-        <text x="18" y="16" font-family="'Playfair Display',serif" font-size="9" fill="rgba(196,147,63,0.35)" font-style="italic" letter-spacing="2">ROOTS &amp; ROUTES</text>
-        <text x="18" y="27" font-family="'Source Serif 4',serif" font-size="6" fill="rgba(196,147,63,0.2)" letter-spacing="2">WORLD MIGRATION ATLAS</text>
-      </svg>
-
-      <!-- ARIA thinking -->
-      <div id="ariaSpin">ARIA <div class="dots"><span>.</span><span>.</span><span>.</span></div></div>
     </div>
 
-    <!-- Bot Panel -->
-    <div class="panel" id="bPanel">
-      <div class="p-head" style="color:var(--teal2)">ARIA</div>
+    <!-- ARIA Panel -->
+    <aside class="side-panel" id="ariaPanel">
+      <div class="p-head" style="color:var(--teal)">ARIA</div>
       <div class="p-identity">
-        <div class="p-avatar" id="bAvatar" style="border-color:var(--teal);color:var(--teal2)">AI</div>
+        <div class="p-avatar a-avatar" id="aAvatar">AI</div>
         <div>
           <div class="p-name" style="color:var(--teal2)">ARIA</div>
-          <div class="p-loc" id="bLoc">Automated Agent</div>
+          <div class="p-loc" id="aLoc">Automated Agent</div>
         </div>
       </div>
-      <div class="stab-wrap">
-        <div class="stab-head"><span>Stability</span><span id="bStabN">5/10</span></div>
-        <div class="stab-track"><div class="stab-fill s-high" id="bStabBar" style="width:50%"></div></div>
-      </div>
-      <div>
-        <div class="p-stat-l" style="margin-bottom:5px">Settlement Tokens</div>
-        <div class="tok-row" id="bToks">
-          <div class="tok" id="bt0">&#9734;</div>
-          <div class="tok" id="bt1">&#9734;</div>
-          <div class="tok" id="bt2">&#9734;</div>
+      <div class="s-lbl"><span>Stability</span><span class="s-val" id="aStabNum">5/10</span></div>
+      <div class="stab-track"><div class="stab-fill aria-stab" id="aStabFill" style="width:50%"></div></div>
+      <div class="tok-section">
+        <div class="lbl">Settlement Tokens</div>
+        <div class="tok-row">
+          <div class="tok" id="at0"></div>
+          <div class="tok" id="at1"></div>
+          <div class="tok" id="at2"></div>
         </div>
       </div>
-      <div class="p-stat"><span class="p-stat-l">Turns Here</span><span class="p-stat-v" id="bTurns">0</span></div>
-      <div class="p-stat"><span class="p-stat-l">Countries</span><span class="p-stat-v" id="bCntries">1</span></div>
-      <div>
-        <div class="p-stat-l" style="margin-bottom:4px">Visited</div>
-        <div class="p-visited" id="bVisited">—</div>
+      <div class="stat-pair"><span class="s-lbl">Turns Here</span><span class="s-val" id="aTurnsHere">0</span></div>
+      <div class="stat-pair"><span class="s-lbl">Countries Visited</span><span class="s-val" id="aCountries">1</span></div>
+      <div class="visited-lbl">ARIA's Route</div>
+      <div class="visited-txt" id="aVisited">—</div>
+      <div class="aria-analysis">
+        <div class="aria-a-lbl">ARIA Analysis</div>
+        <div class="aria-txt" id="ariaText">Analyzing migration patterns...</div>
       </div>
-    </div>
+    </aside>
 
-  </div><!-- end main -->
-
-  <!-- Bottom -->
-  <div id="bot">
-    <div class="bs">
-      <div class="bs-title">Current Phase</div>
-      <p class="pdesc" id="phaseDesc">Awaiting your move.</p>
-    </div>
-
-    <div class="bs" style="border:none;padding:8px 12px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center">
-      <div id="cardRow"></div>
-      <div id="actWrap">
-        <div id="mainBtns" class="btnrow">
-          <button class="btn btn-s" id="btnStay" onclick="decide('stay')">Stay</button>
-          <button class="btn btn-r" id="btnMigrate" onclick="decide('migrate')">Migrate</button>
-        </div>
-        <div id="destGrid" style="display:none"></div>
-        <button class="btn btn-g" id="btnNext" style="display:none" onclick="nextStep()">Continue</button>
-      </div>
-    </div>
-
-    <div class="bs">
-      <div class="bs-title">ARIA Analysis</div>
-      <div class="aria-txt" id="ariaText">Analyzing migration patterns...</div>
-    </div>
   </div>
 
-</div><!-- end app -->
+  <!-- Action Zone -->
+  <div id="actionZone">
 
-<!-- Event log -->
-<div id="log">
-  <div class="log-h">Event Log</div>
-  <div id="logInner"></div>
-</div>
+    <div class="az-col">
+      <div class="az-title">Current Phase</div>
+      <div class="phase-desc" id="phaseDesc">Select your origin country to begin.</div>
+      <div class="az-title" style="margin-top:6px">Event Log</div>
+      <div class="log-entries" id="logEntries"></div>
+    </div>
 
-<script>
-// ── AP HuG CONCEPTS ──────────────────────────────────────────
-const CONCEPTS = {
-  push:     { name:"Push Factor (Ravenstein)", def:"Conditions forcing people to leave their origin — war, poverty, disaster, persecution." },
-  pull:     { name:"Pull Factor", def:"Attractive conditions drawing migrants to destinations — jobs, safety, family, stability." },
-  obstacle: { name:"Intervening Obstacle", def:"Physical or political barriers impeding migration: borders, seas, visa regimes, walls." },
-  chain:    { name:"Chain Migration", def:"Later migrants follow pioneer migrants along established routes using existing social networks." },
-  forced:   { name:"Forced Migration / Refugee", def:"Involuntary displacement due to conflict or disaster. Governed by the 1951 UN Refugee Convention." },
-  settlement:{ name:"Integration & Settlement", def:"Process of migrants establishing permanent residence and becoming part of the host society." },
-  remit:    { name:"Remittances", def:"Money sent by migrants to origin countries — often exceeds foreign aid flows globally." },
-  brain:    { name:"Brain Drain", def:"Emigration of skilled workers, depleting origin country human capital." }
-};
+    <div class="az-center">
+      <div id="cardRow"></div>
+      <div id="actionBtns"></div>
+    </div>
 
-// ── COUNTRIES ────────────────────────────────────────────────
-// Equirectangular: x=(lon+180)*(1000/360), y=(90-lat)*(500/180)
-const CTRY = {
-  mexico:     { name:'Mexico',      code:'MX', type:'origin',  x:210, y:192, col:'#b8632a' },
-  honduras:   { name:'Honduras',    code:'HN', type:'origin',  x:252, y:218, col:'#b8632a' },
-  syria:      { name:'Syria',       code:'SY', type:'origin',  x:610, y:152, col:'#b8632a' },
-  nigeria:    { name:'Nigeria',     code:'NG', type:'origin',  x:524, y:252, col:'#b8632a' },
-  venezuela:  { name:'Venezuela',   code:'VE', type:'origin',  x:308, y:248, col:'#b8632a' },
-  afghanistan:{ name:'Afghanistan', code:'AF', type:'origin',  x:700, y:175, col:'#b8632a' },
-  usa:        { name:'USA',         code:'US', type:'dest',    x:227, y:144, col:'#1a7a6e' },
-  canada:     { name:'Canada',      code:'CA', type:'dest',    x:233, y:100, col:'#1a7a6e' },
-  germany:    { name:'Germany',     code:'DE', type:'dest',    x:528, y:108, col:'#1a7a6e' },
-  sweden:     { name:'Sweden',      code:'SE', type:'dest',    x:550, y:83,  col:'#1a7a6e' },
-  australia:  { name:'Australia',   code:'AU', type:'dest',    x:878, y:330, col:'#1a7a6e' },
-  uae:        { name:'UAE',         code:'AE', type:'dest',    x:644, y:192, col:'#1a7a6e' }
-};
-const DEST_W = { canada:10, germany:10, sweden:9, australia:8, usa:7, uae:6 };
-
-// ── CARD DECKS ───────────────────────────────────────────────
-const PUSH_DECK = [
-  { icon:'D', title:'Drought Devastates Crops',         effect:-2, desc:'Farmland fails. Livelihoods collapse.', hug:'push', must:false },
-  { icon:'P', title:'Political Persecution',            effect:-3, desc:'Dissidents imprisoned. Fear pervades.', hug:'push', must:false },
-  { icon:'V', title:'Gang Violence Surge',              effect:-2, desc:'Extortion and murder rise unchecked.', hug:'push', must:false },
-  { icon:'E', title:'Factory Closure',                  effect:-1, desc:'Unemployment surges as industry fails.', hug:'push', must:false },
-  { icon:'N', title:'Natural Disaster',                 effect:-3, desc:'Earthquake destroys homes and infrastructure.', hug:'forced', must:false },
-  { icon:'H', title:'Hyperinflation',                   effect:-2, desc:'Savings become worthless overnight.', hug:'push', must:false },
-  { icon:'C', title:'Government Corruption',            effect:-1, desc:'Institutions crumble. Services collapse.', hug:'push', must:false },
-  { icon:'W', title:'Water Scarcity Crisis',            effect:-2, desc:'Aquifers depleted. Competition turns violent.', hug:'push', must:false },
-  { icon:'X', title:'Ethnic Conflict Erupts',           effect:-3, desc:'Intercommunal violence displaces thousands.', hug:'forced', must:false },
-  { icon:'I', title:'Infrastructure Collapses',         effect:-1, desc:'Roads, power, hospitals — all failing.', hug:'push', must:false },
-  { icon:'F', title:'Crop Failure',                     effect:-2, desc:'Harvest lost. Food insecurity looms.', hug:'push', must:false },
-  { icon:'W', title:'Civil War',                        effect:-3, desc:'Armed factions seize control. You must flee.', hug:'forced', must:true }
-];
-const OBS_DECK = [
-  { icon:'V', title:'Visa Denied',          eff:'lose_turn', val:1, desc:'Application rejected. Forced to wait.', hug:'obstacle', pass:false, sc:0 },
-  { icon:'S', title:'Safe Passage',         eff:'pass',      val:0, desc:'The route is clear. You travel freely.', hug:'obstacle', pass:true,  sc:0 },
-  { icon:'B', title:'Border Wall',          eff:'reroute',   val:0, desc:'Physical barrier forces a detour.', hug:'obstacle', pass:false, sc:0 },
-  { icon:'S', title:'Smuggler Route',       eff:'pass',      val:0, desc:'Dangerous, but effective. You arrive weakened.', hug:'obstacle', pass:true, sc:-1 },
-  { icon:'D', title:'Detained at Border',   eff:'lose_turn', val:2, desc:'Held in processing. Long wait ahead.', hug:'obstacle', pass:false, sc:0 },
-  { icon:'A', title:'Papers Approved',      eff:'pass',      val:0, desc:'Documents clear. Bonus stability on arrival.', hug:'obstacle', pass:true, sc:1 },
-  { icon:'O', title:'Ocean Too Dangerous',  eff:'block',     val:0, desc:'Storm season. No ocean crossing this turn.', hug:'obstacle', pass:false, sc:0 },
-  { icon:'A', title:'Asylum Granted',       eff:'pass',      val:0, desc:'Legal protection secured. Move freely.', hug:'forced', pass:true, sc:1 },
-  { icon:'L', title:'Language Barrier',     eff:'pass',      val:0, desc:'You arrive but struggle to integrate.', hug:'obstacle', pass:true, sc:-1 },
-  { icon:'R', title:'Refugee Camp',         eff:'lose_turn', val:1, desc:'Wait in temporary shelter before continuing.', hug:'forced', pass:false, sc:0 },
-  { icon:'P', title:'Border Patrol',        eff:'return',    val:0, desc:'Caught and returned to origin country.', hug:'obstacle', pass:false, sc:0 },
-  { icon:'U', title:'Underground Network',  eff:'pass',      val:0, desc:'Hidden network provides secret safe passage.', hug:'chain', pass:true, sc:0 }
-];
-const PULL_DECK = [
-  { icon:'J', title:'Strong Job Market',        effect:3, desc:'Low unemployment. Wages draw migrants from afar.', hug:'pull', redirect:false },
-  { icon:'F', title:'Family Already Here',      effect:2, desc:'Relatives provide housing and networks on arrival.', hug:'chain', redirect:false },
-  { icon:'H', title:'Free Healthcare',          effect:2, desc:'Universal coverage eases the burden of settling.', hug:'pull', redirect:false },
-  { icon:'O', title:'Overcrowded — Redirected', effect:0, desc:'No capacity. You must choose another destination.', hug:'obstacle', redirect:true },
-  { icon:'W', title:'High Wages',               effect:3, desc:'Purchasing power vastly exceeds origin country.', hug:'pull', redirect:false },
-  { icon:'R', title:'Refugee Policy',           effect:2, desc:'Government actively supports newcomers.', hug:'forced', redirect:false },
-  { icon:'C', title:'Cultural Community',       effect:2, desc:'Diaspora provides immediate belonging and support.', hug:'chain', redirect:false },
-  { icon:'E', title:'Educational Access',       effect:1, desc:'World-class universities open to immigrants.', hug:'pull', redirect:false },
-  { icon:'K', title:'Cold Climate, Shock',      effect:1, desc:'Integration slower than expected. Difficult adjustment.', hug:'obstacle', redirect:false },
-  { icon:'S', title:'Housing Shortage',         effect:1, desc:'Accommodation scarce. You find something, barely.', hug:'obstacle', redirect:false },
-  { icon:'P', title:'Political Stability',      effect:2, desc:'Rule of law and functioning institutions — a relief.', hug:'pull', redirect:false },
-  { icon:'L', title:'Remote, Low Demand',       effect:1, desc:'Work exists but isolation is significant.', hug:'pull', redirect:false }
-];
-
-// ── GAME STATE ───────────────────────────────────────────────
-let G = {
-  turn:1, maxTurns:20, phase:'setup',
-  pMigrating:false, bMigrating:false,
-  pWait:0, bWait:0,
-  conceptsSeen: new Set(),
-  p:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[], statsLost:0, statsGained:0, pushCount:0 },
-  b:{ country:null, stab:5, tokens:0, turnsHere:0, visited:[] },
-  decks:{ push:[], obs:[], pull:[] },
-  log:[]
-};
-
-// ── UTILITIES ────────────────────────────────────────────────
-const rnd = arr => arr[Math.floor(Math.random()*arr.length)];
-const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
-function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}; return b }
-function draw(deck){
-  if(!G.decks[deck].length){
-    G.decks[deck] = shuffle(deck==='push'?[...PUSH_DECK]:deck==='obs'?[...OBS_DECK]:[...PULL_DECK]);
-  }
-  return G.decks[deck].pop();
-}
-function seeConcept(k){ if(k&&CONCEPTS[k]&&!G.conceptsSeen.has(k)){ G.conceptsSeen.add(k); renderConcepts(); } }
-function renderConcepts(){
-  document.getElementById('cList').innerHTML=[...G.conceptsSeen].map(k=>`<div class="ctag">${CONCEPTS[k].name}</div>`).join('');
-}
-function addLog(msg,type='sys'){
-  G.log.unshift({msg,type});
-  if(G.log.length>60)G.log.pop();
-  const el=document.getElementById('logInner');
-  el.innerHTML=G.log.slice(0,10).map(e=>`<div class="le le-${e.type}">${e.msg}</div>`).join('');
-}
-function setPhase(name){
-  G.phase=name;
-  const map={push:'Push Phase',decision:'Decision',obstacle:'Obstacle',arrival:'Arrival',settlement:'Settlement',end:'Game Over'};
-  document.getElementById('phaseTag').textContent= '◆ '+(map[name]||name);
-}
-function setDesc(t){ document.getElementById('phaseDesc').textContent=t }
-function setAria(t){ document.getElementById('ariaText').textContent=t }
-function showBtns(cfg){
-  document.getElementById('mainBtns').style.display = cfg.decision?'flex':'none';
-  document.getElementById('btnStay').disabled=!cfg.stay;
-  document.getElementById('btnMigrate').disabled=!cfg.migrate;
-  document.getElementById('btnNext').style.display = cfg.next?'':'none';
-  document.getElementById('destGrid').style.display = cfg.dests?'flex':'none';
-}
-function flash(t){
-  const el=document.getElementById('flash');
-  el.className=t==='r'?'fr':'fg';
-  el.style.opacity='1';
-  setTimeout(()=>el.style.opacity='0',350);
-}
-function stabClass(v){ return v>=6?'s-high':v>=3?'s-mid':'s-low' }
-
-// ── UI UPDATERS ───────────────────────────────────────────────
-function updateP(){
-  const p=G.p, c=CTRY[p.country]||{};
-  document.getElementById('pAvatar').textContent=c.code||'—';
-  document.getElementById('pLoc').textContent=(c.name||'—').toUpperCase();
-  const pct=clamp(p.stab/10*100,0,100);
-  const bar=document.getElementById('pStabBar');
-  bar.style.width=pct+'%'; bar.className='stab-fill '+stabClass(p.stab);
-  document.getElementById('pStabN').textContent=p.stab+'/10';
-  for(let i=0;i<3;i++){const t=document.getElementById('pt'+i);t.className='tok'+(i<p.tokens?' on':'');t.textContent=i<p.tokens?'★':'☆'}
-  document.getElementById('pTurns').textContent=p.turnsHere;
-  document.getElementById('pCntries').textContent=p.visited.length;
-  document.getElementById('pVisited').textContent=p.visited.map(k=>CTRY[k]?.name).join(', ')||'—';
-}
-function updateB(){
-  const b=G.b, c=CTRY[b.country]||{};
-  document.getElementById('bLoc').textContent=(c.name||'—').toUpperCase();
-  const pct=clamp(b.stab/10*100,0,100);
-  const bar=document.getElementById('bStabBar');
-  bar.style.width=pct+'%'; bar.className='stab-fill '+stabClass(b.stab);
-  document.getElementById('bStabN').textContent=b.stab+'/10';
-  for(let i=0;i<3;i++){const t=document.getElementById('bt'+i);t.className='tok'+(i<b.tokens?' on':'');t.textContent=i<b.tokens?'★':'☆'}
-  document.getElementById('bTurns').textContent=b.turnsHere;
-  document.getElementById('bCntries').textContent=b.visited.length;
-  document.getElementById('bVisited').textContent=b.visited.map(k=>CTRY[k]?.name).join(', ')||'—';
-}
-function updatePresence(){
-  document.querySelectorAll('.pr-ring').forEach(e=>e.style.display='none');
-  if(G.p.country){ const el=document.getElementById('pr-p-'+G.p.country); if(el)el.style.display=''; }
-  if(G.b.country){ const el=document.getElementById('pr-b-'+G.b.country); if(el)el.style.display=''; }
-}
-
-// ── MAP NODES ─────────────────────────────────────────────────
-function buildNodes(){
-  const g=document.getElementById('cnodes'); g.innerHTML='';
-  Object.entries(CTRY).forEach(([key,c])=>{
-    const isO=c.type==='origin';
-    const ns=document.createElementNS('http://www.w3.org/2000/svg','g');
-    ns.className.baseVal='cn-'+(isO?'o':'d');
-    ns.id='cn-'+key;
-
-    const mk=(tag,attrs)=>{
-      const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
-      Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
-      return el;
-    };
-
-    // Presence rings
-    const prP=mk('circle',{cx:c.x,cy:c.y,r:14,class:'pr-ring pr-p',id:'pr-p-'+key,style:'display:none'});
-    const prB=mk('circle',{cx:c.x,cy:c.y,r:17,class:'pr-ring pr-b',id:'pr-b-'+key,style:'display:none'});
-    // Glow
-    const glow=mk('circle',{cx:c.x,cy:c.y,r:12,class:'cn-glow'});
-    // Ring
-    const ring=mk('circle',{cx:c.x,cy:c.y,r:8,class:'cn-ring',fill:'none'});
-    // Dot
-    const dot=mk('circle',{cx:c.x,cy:c.y,r:4.5,class:'cn-dot'});
-    // Label bg
-    const lw=c.name.length*4+8;
-    const lbg=mk('rect',{x:c.x-lw/2,y:c.y+11,width:lw,height:10,rx:2,class:'cn-lbg'});
-    // Label
-    const lbl=mk('text',{x:c.x,y:c.y+19,class:'cn-lbl'});
-    lbl.textContent=c.name;
-
-    [prP,prB,glow,ring,dot,lbg,lbl].forEach(el=>ns.appendChild(el));
-    g.appendChild(ns);
-  });
-}
-
-// ── MIGRATION ANIMATION ───────────────────────────────────────
-function animMove(fromK,toK,dotId,cb){
-  const f=CTRY[fromK], t=CTRY[toK];
-  if(!f||!t){ cb&&cb(); return; }
-  const dot=document.getElementById(dotId);
-  const cx=(f.x+t.x)/2, cy=Math.min(f.y,t.y)-35-Math.abs(t.x-f.x)*0.08;
-  dot.style.opacity='1';
-  const dur=800, start=performance.now();
-  function step(ts){
-    const u=Math.min((ts-start)/dur,1);
-    const bx=(1-u)*(1-u)*f.x+2*(1-u)*u*cx+u*u*t.x;
-    const by=(1-u)*(1-u)*f.y+2*(1-u)*u*cy+u*u*t.y;
-    dot.setAttribute('cx',bx); dot.setAttribute('cy',by);
-    if(u<1)requestAnimationFrame(step);
-    else{ dot.style.opacity='0'; cb&&cb(); }
-  }
-  requestAnimationFrame(step);
-}
-
-// ── PARTICLES ─────────────────────────────────────────────────
-const CVS=document.getElementById('pCanvas');
-const CTX=CVS.getContext('2d');
-CVS.width=window.innerWidth; CVS.height=window.innerHeight;
-window.addEventListener('resize',()=>{CVS.width=window.innerWidth;CVS.height=window.innerHeight});
-let parts=[];
-function confetti(){
-  const cols=['#c4933f','#f0e6c8','#1a7a6e','#c0303c','#2e8b57','#2e5f80'];
-  for(let i=0;i<120;i++) parts.push({
-    x:Math.random()*CVS.width, y:Math.random()*CVS.height*.5,
-    vx:(Math.random()-.5)*3.5, vy:Math.random()*2.5+1,
-    w:Math.random()*7+3, h:Math.random()*4+2,
-    col:cols[Math.floor(Math.random()*cols.length)],
-    rot:Math.random()*Math.PI*2, rv:(Math.random()-.5)*.15, life:1
-  });
-  animParts();
-}
-let pRAF=null;
-function animParts(){
-  if(pRAF)cancelAnimationFrame(pRAF);
-  CTX.clearRect(0,0,CVS.width,CVS.height);
-  parts=parts.filter(p=>p.life>0.01);
-  parts.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv; p.life-=0.012; p.vy+=0.04;
-    CTX.save(); CTX.globalAlpha=p.life; CTX.translate(p.x,p.y); CTX.rotate(p.rot);
-    CTX.fillStyle=p.col; CTX.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-    CTX.restore();
-  });
-  if(parts.length) pRAF=requestAnimationFrame(animParts);
-  else CTX.clearRect(0,0,CVS.width,CVS.height);
-}
-
-// ── CARD RENDERING ────────────────────────────────────────────
-function cardHTML(card,deckType){
-  const cls=deckType==='push'?'card-push':deckType==='obs'?'card-obs':'card-pull';
-  const typeLabel=deckType==='push'?'Push Factor':deckType==='obs'?'Obstacle':'Pull Factor';
-  const eff=card.effect!==undefined?card.effect:(card.sc||0);
-  const effTxt=eff!==0?`<div class="c-eff" style="color:${eff>0?'#70c888':'#e07888'}">${eff>0?'+':''}${eff} Stability</div>`:'';
-  const hug=card.hug;
-  const hugName=CONCEPTS[hug]?.name.split('(')[0].trim()||'';
-  seeConcept(hug);
-  return `<div class="card ${cls}">
-    <div class="c-type">${typeLabel}</div>
-    <div class="c-icon">${card.icon}</div>
-    <div class="c-title">${card.title}</div>
-    <div class="c-desc">${card.desc}</div>
-    ${effTxt}
-    ${hugName?`<div class="c-hug">${hugName}</div>`:''}
-  </div>`;
-}
-function setCards(html){ document.getElementById('cardRow').innerHTML=html }
-
-// ── START SCREEN ──────────────────────────────────────────────
-const ORIGINS=['mexico','honduras','syria','nigeria','venezuela','afghanistan'];
-const FLAG_COLORS={mexico:'#006847',honduras:'#0073CF',syria:'#CE1126',nigeria:'#008751',venezuela:'#CF142B',afghanistan:'#D32011'};
-let selCountry=null;
-
-function buildStartScreen(){
-  const g=document.getElementById('ssGrid');
-  g.innerHTML=ORIGINS.map(k=>{
-    const c=CTRY[k];
-    const fc=FLAG_COLORS[k]||'#444';
-    return `<div class="ss-opt" onclick="pickCountry('${k}',this)">
-      <div class="ss-flag" style="background:${fc};color:#fff">${c.code}</div>
-      <div class="ss-cname">${c.name}</div>
-      <div class="ss-creg">Origin Country</div>
-    </div>`;
-  }).join('');
-}
-function pickCountry(k,el){
-  selCountry=k;
-  document.querySelectorAll('.ss-opt').forEach(e=>e.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('ssStart').disabled=false;
-}
-
-// ── GAME START ────────────────────────────────────────────────
-function startGame(){
-  if(!selCountry)return;
-  const bots=ORIGINS.filter(k=>k!==selCountry);
-  const botC=bots[Math.floor(Math.random()*bots.length)];
-
-  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=5;
-  G.b.country=botC; G.b.visited=[botC]; G.b.stab=5;
-  G.decks.push=shuffle([...PUSH_DECK]);
-  G.decks.obs=shuffle([...OBS_DECK]);
-  G.decks.pull=shuffle([...PULL_DECK]);
-
-  document.getElementById('startScreen').style.display='none';
-  buildNodes();
-  updateP(); updateB(); updatePresence();
-  addLog(`Journey begins. You: ${CTRY[selCountry].name}. ARIA: ${CTRY[botC].name}.`,'sys');
-  setTimeout(pushPhase,300);
-}
-
-// ── TURN FLOW ─────────────────────────────────────────────────
-function pushPhase(){
-  if(G.phase==='end')return;
-  setPhase('push');
-  document.getElementById('turnNum').textContent=G.turn;
-  showBtns({});
-
-  // Handle waiting
-  if(G.pWait>0){ G.pWait--; addLog(`Waiting — ${G.pWait} turns remaining.`,'sys'); }
-  if(G.bWait>0){ G.bWait--; }
-
-  const pCard=draw('push'), bCard=draw('push');
-  G.p.pushCount++;
-
-  if(!G.pWait){ G.p.stab=clamp(G.p.stab+pCard.effect,0,10); G.p.statsLost+=Math.max(0,-pCard.effect); }
-  G.b.stab=clamp(G.b.stab+bCard.effect,0,10);
-
-  G.pMigrating=pCard.must||G.p.stab<=0;
-  G.bMigrating=bCard.must||G.b.stab<=0;
-
-  setCards(`
-    <div><div class="c-lbl">Your Push</div>${cardHTML(pCard,'push')}</div>
-    <div><div class="c-lbl">ARIA's Push</div>${cardHTML(bCard,'push')}</div>
-  `);
-
-  if(pCard.effect<0)flash('r'); else flash('g');
-  updateP(); updateB();
-
-  const mustNote=G.pMigrating?' You must migrate.':'';
-  setDesc(`Push: "${pCard.title}" (${pCard.effect} Stability).${mustNote}`);
-  addLog(`Push: "${pCard.title}" — ${pCard.effect} stab`,'push');
-  addLog(`ARIA Push: "${bCard.title}" — ${bCard.effect} stab`,'push');
-  setAria(`ARIA stability: ${G.b.stab}/10. ${G.b.stab<3?'Migration threshold reached.':'Monitoring conditions.'}`);
-
-  setTimeout(decisionPhase,500);
-}
-
-function decisionPhase(){
-  setPhase('decision');
-  if(G.pWait>0){
-    setDesc('You are waiting this turn. ARIA acts.');
-    showBtns({next:true});
-    setTimeout(botDecision,300);
-    return;
-  }
-  if(G.pMigrating){
-    setDesc(`Stability critical. You must migrate. Choose a destination.`);
-    flash('r');
-    setTimeout(arrivalPhase_P,300);
-    return;
-  }
-  setDesc(`Stability: ${G.p.stab}/10. Stay in ${CTRY[G.p.country]?.name} or migrate to a destination?`);
-  showBtns({decision:true,stay:true,migrate:true});
-}
-
-function decide(choice){
-  showBtns({});
-  if(choice==='stay'){
-    addLog(`Staying in ${CTRY[G.p.country]?.name}.`,'sys');
-    G.pMigrating=false;
-    setTimeout(botDecision,250);
-  } else {
-    addLog(`Migrating...`,'sys');
-    G.pMigrating=true;
-    obstaclePhase_P();
-  }
-}
-
-function obstaclePhase_P(){
-  setPhase('obstacle');
-  const card=draw('obs');
-  setCards(`<div><div class="c-lbl">Your Obstacle</div>${cardHTML(card,'obs')}</div>`);
-  addLog(`Obstacle: "${card.title}"`,'obs');
-  setDesc(`Obstacle: "${card.title}" — ${card.desc}`);
-  seeConcept(card.hug);
-
-  if(card.pass){
-    if(card.sc){ G.p.stab=clamp(G.p.stab+card.sc,0,10); updateP(); }
-    flash('g');
-    setTimeout(arrivalPhase_P,400);
-  } else if(card.eff==='lose_turn'){
-    G.pWait=card.val; G.pMigrating=false;
-    addLog(`Lost ${card.val} turn(s).`,'obs'); flash('r');
-    setTimeout(botDecision,400);
-  } else if(card.eff==='return'){
-    G.p.turnsHere=0; G.pMigrating=false;
-    addLog(`Returned to ${CTRY[G.p.country]?.name}.`,'obs'); flash('r');
-    setTimeout(botDecision,400);
-  } else {
-    // block or reroute — still go to arrival but with limited options
-    G.pMigrating=true;
-    setTimeout(()=>arrivalPhase_P(card.eff),400);
-  }
-}
-
-function arrivalPhase_P(obstType){
-  setPhase('arrival');
-  let dests=Object.entries(CTRY).filter(([,c])=>c.type==='dest').map(([k,c])=>({k,...c}));
-  if(obstType==='block') dests=dests.filter(d=>d.k!=='australia');
-
-  const grid=document.getElementById('destGrid');
-  grid.innerHTML=dests.map(d=>`<button class="dbtn" onclick="chooseP('${d.k}')">${d.name}</button>`).join('');
-  showBtns({dests:true});
-  setDesc('Choose your destination country. Each offers different pull factors.');
-}
-
-function chooseP(key){
-  showBtns({});
-  const from=G.p.country;
-  addLog(`Migrating: ${CTRY[from]?.name} → ${CTRY[key]?.name}`,'sys');
-  animMove(from,key,'mdot-p',()=>{
-    G.p.country=key; G.p.turnsHere=0;
-    if(!G.p.visited.includes(key)) G.p.visited.push(key);
-    updatePresence();
-    pullPhase_P(key);
-  });
-}
-
-function pullPhase_P(country){
-  const card=draw('pull');
-  seeConcept(card.hug);
-  const existing=document.getElementById('cardRow').innerHTML;
-  setCards(existing+`<div><div class="c-lbl">Pull Factor</div>${cardHTML(card,'pull')}</div>`);
-
-  if(card.redirect && G.b.country===country){
-    addLog(`Overcrowded! ${CTRY[country]?.name} is full. Choose again.`,'sys');
-    seeConcept('obstacle');
-    setTimeout(arrivalPhase_P,350);
-    return;
-  }
-  const eff=card.effect||0;
-  if(eff){ G.p.stab=clamp(G.p.stab+eff,0,10); if(eff>0){G.p.statsGained+=eff;flash('g');} }
-  addLog(`Pull in ${CTRY[country]?.name}: "${card.title}" (${eff>=0?'+':''}${eff})`,'pull');
-  setDesc(`Arrived in ${CTRY[country]?.name}. Pull: "${card.title}" (${eff>=0?'+':''}${eff} Stability).`);
-  updateP();
-  setTimeout(botDecision,500);
-}
-
-// ── BOT AI ────────────────────────────────────────────────────
-function botDecision(){
-  document.getElementById('ariaSpin').classList.add('on');
-  setTimeout(botAct,350+Math.random()*200);
-}
-function botAct(){
-  document.getElementById('ariaSpin').classList.remove('on');
-  if(G.bWait>0){
-    addLog(`ARIA waiting (${G.bWait} turns).`,'sys');
-    setAria(`ARIA waiting. Stability: ${G.b.stab}/10.`);
-    settlement();
-    return;
-  }
-  const shouldMove=G.bMigrating||G.b.stab<3||Math.random()<0.35;
-  if(!shouldMove){
-    addLog(`ARIA stays in ${CTRY[G.b.country]?.name}.`,'sys');
-    setAria(`ARIA holds position. Stability: ${G.b.stab}/10. Settlement progress: ${G.b.turnsHere}/2.`);
-    settlement();
-    return;
-  }
-  G.bMigrating=true;
-  const obs=draw('obs');
-  addLog(`ARIA obstacle: "${obs.title}"`,'obs');
-  setAria(`ARIA drew: "${obs.title}". ${obs.pass?'Passable.':'Blocked.'}`);
-  if(!obs.pass){
-    if(obs.eff==='lose_turn') G.bWait=obs.val;
-    if(obs.eff==='return') G.b.turnsHere=0;
-    G.bMigrating=false;
-    settlement(); return;
-  }
-  if(obs.sc) G.b.stab=clamp(G.b.stab+obs.sc,0,10);
-  const dest=botPickDest();
-  const from=G.b.country;
-  addLog(`ARIA → ${CTRY[dest]?.name}.`,'sys');
-  setAria(`ARIA migrates to ${CTRY[dest]?.name} (pull weight: ${DEST_W[dest]}).`);
-  animMove(from,dest,'mdot-b',()=>{
-    G.b.country=dest; G.b.turnsHere=0;
-    if(!G.b.visited.includes(dest)) G.b.visited.push(dest);
-    updatePresence();
-    const pc=draw('pull'); const eff=pc.effect||0;
-    G.b.stab=clamp(G.b.stab+eff,0,10);
-    addLog(`ARIA pull: "${pc.title}" (${eff>=0?'+':''}${eff})`,'pull');
-    updateB(); settlement();
-  });
-}
-function botPickDest(){
-  const opts=Object.keys(CTRY).filter(k=>CTRY[k].type==='dest');
-  const ws=opts.map(k=>({ k, w:Math.max(1,(DEST_W[k]||5)-(k===G.b.country?5:0)-(k===G.p.country?2:0)) }));
-  const tot=ws.reduce((s,x)=>s+x.w,0);
-  let r=Math.random()*tot;
-  for(const {k,w} of ws){ r-=w; if(r<=0)return k; }
-  return opts[0];
-}
-
-// ── SETTLEMENT CHECK ──────────────────────────────────────────
-function settlement(){
-  if(!G.pMigrating&&!G.pWait) G.p.turnsHere++;
-  if(!G.bMigrating&&!G.bWait) G.b.turnsHere++;
-  G.pMigrating=false; G.bMigrating=false;
-
-  let pSettled=false, bSettled=false;
-  if(G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=2){
-    G.p.tokens++; G.p.turnsHere=0; pSettled=true;
-    seeConcept('settlement');
-    addLog(`Settlement Token earned in ${CTRY[G.p.country]?.name}!`,'pull');
-    flash('g'); confetti();
-  }
-  if(G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=2){
-    G.b.tokens++; G.b.turnsHere=0; bSettled=true;
-    addLog(`ARIA token earned in ${CTRY[G.b.country]?.name}.`,'sys');
-  }
-  updateP(); updateB(); updatePresence();
-
-  if(G.p.tokens>=3){ endGame('p'); return; }
-  if(G.b.tokens>=3){ endGame('b'); return; }
-  if(G.turn>=G.maxTurns){ endGame(G.p.tokens>=G.b.tokens?'p':'b'); return; }
-
-  G.turn++;
-  if(pSettled) setDesc(`Token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Turn ${G.turn} begins.`);
-  setTimeout(pushPhase, pSettled?1200:400);
-}
-
-// ── GAME OVER ─────────────────────────────────────────────────
-function endGame(winner){
-  setPhase('end');
-  const isW=winner==='p';
-  const screen=document.getElementById('overScreen');
-  screen.style.display='flex';
-  document.getElementById('ovTitle').textContent=isW?'Victory':'Journey\'s End';
-  document.getElementById('ovTitle').style.color=isW?'var(--gold2)':'var(--steel2)';
-  document.getElementById('ovSub').textContent=isW
-    ?`You earned ${G.p.tokens} settlement token${G.p.tokens!==1?'s':''} and found a new home. Your journey demonstrates the real forces driving human migration across borders.`
-    :`ARIA settled with ${G.b.tokens} token${G.b.tokens!==1?'s':''} against your ${G.p.tokens}. The journey of migration is rarely simple or swift.`;
-  if(isW)confetti();
-
-  document.getElementById('ovGrid').innerHTML=`
-    <div class="ov-card">
-      <div class="ov-ch">Your Statistics</div>
-      <div class="ov-stat">
-        Countries visited: <strong style="color:var(--gold2)">${G.p.visited.length}</strong><br>
-        Settlement tokens: <strong style="color:var(--gold2)">${G.p.tokens}</strong><br>
-        Stability lost: <strong style="color:#e07888">${G.p.statsLost}</strong><br>
-        Stability gained: <strong style="color:#70c888">${G.p.statsGained}</strong><br>
-        Turns played: <strong>${G.turn}</strong><br>
-        Route: ${G.p.visited.map(k=>CTRY[k]?.name).join(' → ')}
+    <div class="az-col">
+      <div class="az-title">Card Decks</div>
+      <div class="deck-section">
+        <div class="deck-item deck-push">
+          <span class="deck-lbl">Push</span>
+          <span class="deck-cnt" id="pushCnt">12</span>
+        </div>
+        <div class="deck-item deck-obs">
+          <span class="deck-lbl">Obstacle</span>
+          <span class="deck-cnt" id="obsCnt">12</span>
+        </div>
+        <div class="deck-item deck-pull">
+          <span class="deck-lbl">Pull</span>
+          <span class="deck-cnt" id="pullCnt">12</span>
+        </div>
+      </div>
+      <div class="az-title" style="margin-top:10px">How to Win</div>
+      <div style="font-size:10px;color:var(--text2);line-height:1.75;margin-top:4px">
+        Earn <strong style="color:var(--gold2)">3 settlement tokens</strong> by staying 2 turns at a destination. Draw cards each phase, manage stability, and beat ARIA.
       </div>
     </div>
-    <div class="ov-card">
-      <div class="ov-ch">Concepts Encountered</div>
-      ${[...G.conceptsSeen].map(k=>{ const c=CONCEPTS[k]; return c?`<div class="con-entry"><div class="con-name">${c.name}</div><div class="con-def">${c.def}</div></div>`:''; }).join('')}
-    </div>`;
 
-  const origin=CTRY[G.p.visited[0]], dests=G.p.visited.slice(1).map(k=>CTRY[k]?.name).filter(Boolean);
-  const terms=[...G.conceptsSeen].map(k=>CONCEPTS[k]?.name).filter(Boolean);
-  document.getElementById('ovSumm').innerHTML=`<div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold2);margin-bottom:10px">What This Game Demonstrated</div>
-    Starting in ${origin?.name||'your origin country'}, you experienced the push-pull model of migration first described by E.G. Ravenstein in 1885 and formalized by Everett Lee in 1966. ${dests.length?`Your journey through ${dests.join(', ')} illustrated how intervening obstacles — border walls, visa denials, dangerous seas — shape migration paths, often making the intended destination unreachable on first attempt.`:''} Real migrants face identical forces: economic collapse, political violence, and environmental disaster push people from their homes; wages, family networks, and political safety pull them toward destinations. The ${terms.length} geographic concepts encountered — ${terms.slice(0,4).join(', ')}${terms.length>4?' and more':''} — form the vocabulary of migration geography studied worldwide.`;
-}
+  </div>
 
-// ── MISC ──────────────────────────────────────────────────────
-function toggleC(){ document.getElementById('cSide').classList.toggle('open') }
-function nextStep(){ botDecision() }
+</div>
 
-// ── INIT ──────────────────────────────────────────────────────
-buildStartScreen();
-</script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson@3/dist/topojson.min.js"></script>
+<script src="game.js"></script>
 </body>
 </html>
