@@ -40,15 +40,17 @@ const DEST_W = { canada:10, germany:10, sweden:9, australia:8, usa:7, uae:6 };
 // ── CARD DECKS ──────────────────────────────────────────────
 const PUSH_DECK = [
   { icon:'D', title:'Drought Devastates Crops',   effect:-2, desc:'Farmland fails. Livelihoods collapse.',         hug:'push',   must:false },
-  { icon:'P', title:'Political Persecution',      effect:-3, desc:'Dissidents imprisoned. Fear pervades.',          hug:'push',   must:false },
+  { icon:'P', title:'Political Persecution',      effect:-2, desc:'Dissidents imprisoned. Fear pervades.',          hug:'push',   must:false },
   { icon:'V', title:'Gang Violence Surge',        effect:-2, desc:'Extortion and murder rise unchecked.',           hug:'push',   must:false },
   { icon:'E', title:'Factory Closure',            effect:-1, desc:'Unemployment surges as industry fails.',         hug:'push',   must:false },
   { icon:'N', title:'Natural Disaster',           effect:-3, desc:'Earthquake destroys homes and infrastructure.',  hug:'forced', must:false },
   { icon:'H', title:'Hyperinflation',             effect:-2, desc:'Savings become worthless overnight.',            hug:'push',   must:false },
   { icon:'C', title:'Government Corruption',      effect:-1, desc:'Institutions crumble. Services collapse.',       hug:'push',   must:false },
-  { icon:'W', title:'Water Scarcity Crisis',      effect:-2, desc:'Aquifers depleted. Competition turns violent.',  hug:'push',   must:false },
-  { icon:'X', title:'Ethnic Conflict Erupts',     effect:-3, desc:'Intercommunal violence displaces thousands.',    hug:'forced', must:false },
+  { icon:'W', title:'Water Scarcity Crisis',      effect:-1, desc:'Aquifers depleted. Tension rises.',              hug:'push',   must:false },
+  { icon:'X', title:'Ethnic Conflict Erupts',     effect:-2, desc:'Intercommunal violence displaces thousands.',    hug:'forced', must:false },
   { icon:'I', title:'Infrastructure Collapses',   effect:-1, desc:'Roads, power, hospitals — all failing.',         hug:'push',   must:false },
+  { icon:'R', title:'Remittance Arrives',         effect: 2, desc:'Money from relatives abroad stabilizes you.',    hug:'remit',  must:false },
+  { icon:'S', title:'Ceasefire Holds',            effect: 1, desc:'Armed conflict pauses. Relief agencies arrive.', hug:'forced', must:false },
   { icon:'F', title:'Crop Failure',               effect:-2, desc:'Harvest lost. Food insecurity looms.',           hug:'push',   must:false },
   { icon:'W', title:'Civil War',                  effect:-3, desc:'Armed factions seize control. You must flee.',   hug:'forced', must:true  }
 ];
@@ -210,96 +212,86 @@ function revealCard(containerId, card, deckType, label){
   const faceCls=deckType==='push'?'push-c':deckType==='obs'?'obs-c':'pull-c';
   const el=document.getElementById(containerId);
   if(!el) return;
-  // c-face = card back (R&R, shown first); c-back = card content (revealed on flip)
+  // Step 1: show face-down card back
   el.innerHTML=`
     <div class="card-lbl">${label}</div>
-    <div class="card-flip">
-      <div class="card-inner" id="${containerId}-inner">
-        <div class="c-face c-back-design ${backCls}">R&amp;R</div>
-        <div class="c-back ${faceCls}">${cardInnerHTML(card,deckType)}</div>
-      </div>
-    </div>`;
-  setTimeout(()=>{ const inn=document.getElementById(containerId+'-inner'); if(inn) inn.classList.add('flipped'); },700);
+    <div class="card-face ${backCls} card-is-back">R&amp;R</div>`;
+  // Step 2: after delay, swap to card face with reveal animation
+  setTimeout(()=>{
+    const el2=document.getElementById(containerId);
+    if(!el2) return;
+    el2.innerHTML=`
+      <div class="card-lbl">${label}</div>
+      <div class="card-face ${faceCls} card-is-front">${cardInnerHTML(card,deckType)}</div>`;
+  },700);
 }
 
 // ── D3 MAP INIT ─────────────────────────────────────────────
 function initMap(){
   const container=document.getElementById('mapContainer');
+  // Guard: wait for layout to calculate real dimensions
+  if(!container||!container.clientWidth){
+    setTimeout(initMap,60); return;
+  }
   const W=container.clientWidth, H=container.clientHeight;
   mapSvg=d3.select('#worldMap');
   mapSvg.attr('width',W).attr('height',H);
 
-  // Natural Earth projection — beautiful and accurate
   projection=d3.geoNaturalEarth1()
     .scale(Math.min(W/6.2, H/3.1))
     .translate([W/2, H/2+20]);
   pathFn=d3.geoPath().projection(projection);
 
-  // Compute SVG coords for each game country
   Object.keys(CTRY).forEach(k=>{
     const c=CTRY[k];
     const [x,y]=projection([c.lon,c.lat]);
     c.svgX=x; c.svgY=y;
   });
 
-  // Ocean background
   mapSvg.append('rect').attr('width',W).attr('height',H).attr('class','ocean-bg');
 
-  // Load world topojson
-  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/world-110m.json').then(world=>{
-    worldData=world;
-    const countries=topojson.feature(world, world.objects.countries);
+  // Always build routes and nodes immediately — game is playable without world topojson
+  buildRoutes();
+  buildNodes();
+  mapSvg.append('circle').attr('id','mdot-p').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
+  mapSvg.append('circle').attr('id','mdot-b').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
 
-    // Draw country paths
-    mapSvg.selectAll('.country-path')
-      .data(countries.features)
-      .enter().append('path')
-      .attr('class','country-path')
-      .attr('d',pathFn)
-      .attr('data-id',d=>d.id);
+  mapReady=true;
+  buildStartScreen();
 
-    // Graticule
-    const graticule=d3.geoGraticule()();
-    mapSvg.append('path').datum(graticule).attr('class','graticule').attr('d',pathFn);
-
-    // Equator
-    mapSvg.append('path')
-      .datum({type:'LineString',coordinates:[[-180,0],[180,0]]})
-      .attr('class','equator-line').attr('d',pathFn);
-
-    // Highlight game countries on the base map
-    countries.features.forEach(f=>{
-      const key=Object.keys(CTRY).find(k=>CTRY[k].topoId===f.id);
-      if(key){
-        d3.select(`[data-id="${f.id}"]`)
-          .classed(CTRY[key].type==='origin'?'game-orig':'game-dest',true);
-      }
-    });
-
-    // Map labels
-    [['NORTH AMERICA',-100,45],['SOUTH AMERICA',-60,-15],['EUROPE',15,55],
-     ['AFRICA',20,0],['ASIA',90,50],['AUSTRALIA',135,-30]].forEach(([lbl,lon,lat])=>{
-      const [x,y]=projection([lon,lat]);
-      mapSvg.append('text').attr('class','map-label').attr('x',x).attr('y',y).text(lbl);
-    });
-
-    // Build route lines
-    buildRoutes();
-
-    // Game nodes
-    buildNodes();
-
-    // Migration dots
-    mapSvg.append('circle').attr('id','mdot-p').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
-    mapSvg.append('circle').attr('id','mdot-b').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
-
-    mapReady=true;
-    buildStartScreen();
-  }).catch(()=>{
-    // Fallback: map failed, still build start screen
-    mapReady=false;
-    buildStartScreen();
-  });
+  // Load world topojson in background (visual enhancement — game works either way)
+  const CDN_URLS=[
+    'https://cdn.jsdelivr.net/npm/world-atlas@2/world-110m.json',
+    'https://unpkg.com/world-atlas@2/world-110m.json'
+  ];
+  function tryLoadWorld(i){
+    if(i>=CDN_URLS.length) return;
+    d3.json(CDN_URLS[i]).then(world=>{
+      const countries=topojson.feature(world,world.objects.countries);
+      // Insert country layer BELOW routes and nodes
+      const routesNode=document.getElementById('routes');
+      const cg=mapSvg.insert('g',()=>routesNode);
+      cg.selectAll('.country-path')
+        .data(countries.features).enter().append('path')
+        .attr('class','country-path').attr('d',pathFn).attr('data-id',d=>d.id);
+      mapSvg.insert('path',()=>routesNode).datum(d3.geoGraticule()()).attr('class','graticule').attr('d',pathFn);
+      mapSvg.insert('path',()=>routesNode)
+        .datum({type:'LineString',coordinates:[[-180,0],[180,0]]})
+        .attr('class','equator-line').attr('d',pathFn);
+      countries.features.forEach(f=>{
+        const key=Object.keys(CTRY).find(k=>CTRY[k].topoId===f.id);
+        if(key) d3.select(`[data-id="${f.id}"]`).classed(CTRY[key].type==='origin'?'game-orig':'game-dest',true);
+      });
+      [['NORTH AMERICA',-100,45],['SOUTH AMERICA',-60,-15],['EUROPE',15,55],
+       ['AFRICA',20,0],['ASIA',90,50],['AUSTRALIA',135,-30]].forEach(([lbl,lon,lat])=>{
+        const [x,y]=projection([lon,lat]);
+        mapSvg.insert('text',()=>routesNode).attr('class','map-label').attr('x',x).attr('y',y).text(lbl);
+      });
+      worldData=world;
+      updatePresence();
+    }).catch(()=>tryLoadWorld(i+1));
+  }
+  tryLoadWorld(0);
 }
 
 function buildRoutes(){
@@ -431,8 +423,8 @@ function startGame(){
   if(!selCountry) return;
   const bots=ORIGINS.filter(k=>k!==selCountry);
   const botC=bots[Math.floor(Math.random()*bots.length)];
-  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=5;
-  G.b.country=botC; G.b.visited=[botC]; G.b.stab=5;
+  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=8;
+  G.b.country=botC; G.b.visited=[botC]; G.b.stab=8;
   G.decks.push=shuffle([...PUSH_DECK]);
   G.decks.obs=shuffle([...OBS_DECK]);
   G.decks.pull=shuffle([...PULL_DECK]);
@@ -522,9 +514,17 @@ function decisionPhase(){
 
 function stayDecision(){
   G.pMigrating=false;
-  addLog(`Staying in ${CTRY[G.p.country]?.name}.`,'sys');
+  // Staying at a destination earns community roots (+1 stability)
+  if(CTRY[G.p.country]?.type==='dest'){
+    G.p.stab=clamp(G.p.stab+1,0,10);
+    G.p.statsGained=(G.p.statsGained||0)+1;
+    addLog(`Staying in ${CTRY[G.p.country]?.name}. +1 Stability.`,'pull');
+  } else {
+    addLog(`Staying in ${CTRY[G.p.country]?.name}.`,'sys');
+  }
   setActions('');
   setDesc(`You stay in ${CTRY[G.p.country]?.name}. Watching ARIA's move...`);
+  updateP();
   setTimeout(botDecision, 350);
 }
 
@@ -635,6 +635,7 @@ function doPullDraw(country){
 function botDecision(){
   setPhase('aria');
   setActions('');
+  setCards(''); // clear player cards; ARIA's cards will appear here
   setDesc(`ARIA is calculating their migration strategy...`);
   document.getElementById('ariaBubble').classList.add('on');
   setTimeout(botAct, 400+Math.random()*250);
@@ -664,12 +665,15 @@ function botAct(){
   addLog(`ARIA obstacle: "${obs.title}"`,'obs');
   setAria(`ARIA drew: "${obs.title}". ${obs.pass?'Passable — migrating.':'Blocked.'}`);
   setDesc(`ARIA obstacle: "${obs.title}" — ${obs.desc}`);
+  // Show ARIA's obstacle card
+  setCards(`<div class="card-wrap" id="a-obs-c"></div>`);
+  setTimeout(()=>revealCard('a-obs-c',obs,'obs',"ARIA Obstacle"),50);
   updateDecks();
   if(!obs.pass){
     if(obs.eff==='lose_turn') G.bWait=obs.val;
     if(obs.eff==='return') G.b.turnsHere=0;
     G.bMigrating=false;
-    setTimeout(settlement, 500);
+    setTimeout(settlement, 900);
     return;
   }
   if(obs.sc) G.b.stab=clamp(G.b.stab+obs.sc,0,10);
@@ -678,7 +682,7 @@ function botAct(){
   addLog(`ARIA → ${CTRY[dest]?.name}.`,'sys');
   setDesc(`ARIA migrates to ${CTRY[dest]?.name}...`);
   setAria(`ARIA migrates to ${CTRY[dest]?.name} (strategic weight: ${DEST_W[dest]}).`);
-  animMove(from, dest, 'mdot-b', ()=>{
+  setTimeout(()=>animMove(from, dest, 'mdot-b', ()=>{
     G.b.country=dest; G.b.turnsHere=0;
     if(!G.b.visited.includes(dest)) G.b.visited.push(dest);
     updatePresence();
@@ -687,9 +691,13 @@ function botAct(){
     addLog(`ARIA pull: "${pc.title}" (${eff>=0?'+':''}${eff})`,'pull');
     setDesc(`ARIA arrived in ${CTRY[dest]?.name}. Pull: "${pc.title}". Processing settlement...`);
     setAria(`ARIA pull in ${CTRY[dest]?.name}: "${pc.title}" (${eff>=0?'+':''}${eff}). Stability: ${G.b.stab}/10.`);
+    // Show ARIA's pull card
+    const existing=document.getElementById('cardRow').innerHTML;
+    setCards(existing+`<div class="card-wrap" id="a-pull-c"></div>`);
+    setTimeout(()=>revealCard('a-pull-c',pc,'pull',"ARIA Pull"),50);
     updateA(); updateDecks();
-    setTimeout(settlement, 500);
-  });
+    setTimeout(settlement, 900);
+  }),800);
 }
 
 function botPickDest(){
@@ -786,4 +794,4 @@ function toggleConcepts(){
 }
 
 // ── INIT ─────────────────────────────────────────────────────
-initMap();
+window.addEventListener('load', ()=>setTimeout(initMap, 50));
