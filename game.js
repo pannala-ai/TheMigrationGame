@@ -183,37 +183,43 @@ function updatePresence(){
 }
 
 // ── CARD HTML BUILDER ───────────────────────────────────────
-function cardHTML(card, deckType){
-  const cls=deckType==='push'?'push-c':deckType==='obs'?'obs-c':'pull-c';
+function cardInnerHTML(card, deckType){
   const typeLabel=deckType==='push'?'Push Factor':deckType==='obs'?'Obstacle':'Pull Factor';
   const eff=card.effect!==undefined?card.effect:(card.sc||0);
-  const effHtml=eff!==0?`<div class="c-eff" style="color:${eff>0?'#6adda0':'#ff9080'}">${eff>0?'+':''}${eff} Stability</div>`:'';
+  const effHtml=eff!==0?`<div class="c-eff">${eff>0?'+':''}${eff} Stability</div>`:'';
   const conceptName=CONCEPTS[card.hug]?.name.split('(')[0].trim()||'';
   seeConcept(card.hug);
-  return `<div class="c-face ${cls}">
+  return `
     <div class="c-type">${typeLabel}</div>
     <div class="c-icon">${card.icon}</div>
     <div class="c-title">${card.title}</div>
     <div class="c-desc">${card.desc}</div>
     ${effHtml}
     ${conceptName?`<div class="c-concept">${conceptName}</div>`:''}
-  </div>`;
+  `;
+}
+
+function cardHTML(card, deckType){
+  const cls=deckType==='push'?'push-c':deckType==='obs'?'obs-c':'pull-c';
+  seeConcept(card.hug);
+  return `<div class="c-face ${cls}">${cardInnerHTML(card,deckType)}</div>`;
 }
 
 function revealCard(containerId, card, deckType, label){
   const backCls=deckType==='push'?'push-back-d':deckType==='obs'?'obs-back-d':'pull-back-d';
+  const faceCls=deckType==='push'?'push-c':deckType==='obs'?'obs-c':'pull-c';
   const el=document.getElementById(containerId);
   if(!el) return;
+  // c-face = card back (R&R, shown first); c-back = card content (revealed on flip)
   el.innerHTML=`
     <div class="card-lbl">${label}</div>
     <div class="card-flip">
       <div class="card-inner" id="${containerId}-inner">
-        <div class="c-back"><div class="c-back-design ${backCls}">R&amp;R</div></div>
-        ${cardHTML(card,deckType)}
+        <div class="c-face c-back-design ${backCls}">R&amp;R</div>
+        <div class="c-back ${faceCls}">${cardInnerHTML(card,deckType)}</div>
       </div>
     </div>`;
-  // Flip after brief pause
-  setTimeout(()=>{ const inn=document.getElementById(containerId+'-inner'); if(inn) inn.classList.add('flipped'); },80);
+  setTimeout(()=>{ const inn=document.getElementById(containerId+'-inner'); if(inn) inn.classList.add('flipped'); },700);
 }
 
 // ── D3 MAP INIT ─────────────────────────────────────────────
@@ -376,7 +382,7 @@ CVS.width=window.innerWidth; CVS.height=window.innerHeight;
 window.addEventListener('resize',()=>{CVS.width=window.innerWidth;CVS.height=window.innerHeight});
 let parts=[];
 function confetti(){
-  const cols=['#f5a623','#ffd060','#0ecbb8','#ff5f4e','#3ddc84','#a78bfa'];
+  const cols=['#ff9f0a','#ffd60a','#0a84ff','#ff453a','#30d158','#bf5af2'];
   for(let i=0;i<130;i++) parts.push({
     x:Math.random()*CVS.width, y:Math.random()*CVS.height*.45,
     vx:(Math.random()-.5)*3.8, vy:Math.random()*2.8+0.8,
