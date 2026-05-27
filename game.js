@@ -286,6 +286,13 @@ function initMap(){
   // Always build routes and nodes immediately — game is playable without world topojson
   buildRoutes();
   buildNodes();
+  // Always-visible region labels (independent of topojson)
+  [['NORTH AMERICA',-100,44],['SOUTH AMERICA',-60,-16],['EUROPE',10,56],
+   ['AFRICA',18,-2],['MIDDLE EAST',46,26],['SOUTH ASIA',76,24],['AUSTRALIA',134,-28]]
+  .forEach(([lbl,lon,lat])=>{
+    const [x,y]=projection([lon,lat]);
+    mapSvg.append('text').attr('class','map-label').attr('x',x).attr('y',y).text(lbl);
+  });
   mapSvg.append('circle').attr('id','mdot-p').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
   mapSvg.append('circle').attr('id','mdot-b').attr('r',5.5).attr('class','mdot').attr('cx',0).attr('cy',0);
 
@@ -314,11 +321,6 @@ function initMap(){
       countries.features.forEach(f=>{
         const key=Object.keys(CTRY).find(k=>CTRY[k].topoId===f.id);
         if(key) d3.select(`[data-id="${f.id}"]`).classed(CTRY[key].type==='origin'?'game-orig':'game-dest',true);
-      });
-      [['NORTH AMERICA',-100,45],['SOUTH AMERICA',-60,-15],['EUROPE',15,55],
-       ['AFRICA',20,0],['ASIA',90,50],['AUSTRALIA',135,-30]].forEach(([lbl,lon,lat])=>{
-        const [x,y]=projection([lon,lat]);
-        mapSvg.insert('text',()=>routesNode).attr('class','map-label').attr('x',x).attr('y',y).text(lbl);
       });
       worldData=world;
       updatePresence();
@@ -459,7 +461,7 @@ function startGame(){
   if(!selCountry) return;
   const bots=ORIGINS.filter(k=>k!==selCountry);
   const botC=bots[Math.floor(Math.random()*bots.length)];
-  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=6; G.p.bonus=ORIGIN_BONUS[selCountry];
+  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=7; G.p.bonus=ORIGIN_BONUS[selCountry];
   G.b.country=botC; G.b.visited=[botC]; G.b.stab=7;
   G.decks.push=shuffle([...PUSH_DECK]);
   G.decks.obs=shuffle([...OBS_DECK]);
@@ -659,6 +661,14 @@ function chooseP(key){
   animMove(from, key, 'mdot-p', ()=>{
     G.p.country=key; G.p.turnsHere=0; G.pMigrating=true;
     if(!G.p.visited.includes(key)) G.p.visited.push(key);
+    // Emergency aid: arriving in desperate condition triggers humanitarian support
+    if(G.p.stab<=2){
+      const aid=4;
+      G.p.stab=clamp(G.p.stab+aid,0,10);
+      G.p.statsGained=(G.p.statsGained||0)+aid;
+      addLog(`Emergency humanitarian aid: +${aid} Stability on arrival.`,'pull');
+      flash('g');
+    }
     // Mexico bonus: +1 stability arriving at North America via chain migration
     const origin=G.p.visited[0];
     if(origin==='mexico'&&(key==='usa'||key==='canada')){
@@ -735,7 +745,7 @@ function botAct(){
     setTimeout(settlement,400);
     return;
   }
-  const shouldMove=G.bMigrating||G.b.stab<4||Math.random()<0.44;
+  const shouldMove=G.bMigrating||G.b.stab<3||Math.random()<0.38;
   if(!shouldMove){
     addLog(`ARIA stays in ${CTRY[G.b.country]?.name}.`,'sys');
     setAria(`ARIA holds position in ${CTRY[G.b.country]?.name}. Stability: ${G.b.stab}/10. Progress: ${G.b.turnsHere}/3.`);
@@ -800,7 +810,7 @@ function settlement(){
   G.pMigrating=false; G.bMigrating=false;
 
   let pSettled=false, bSettled=false;
-  const pCanSettle=G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3&&G.p.stab>=5&&!G.p.settledIn.includes(G.p.country);
+  const pCanSettle=G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3&&G.p.stab>=4&&!G.p.settledIn.includes(G.p.country);
   const bCanSettle=G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3&&G.b.stab>=4&&!G.b.settledIn.includes(G.b.country);
   if(pCanSettle){
     G.p.tokens++; G.p.turnsHere=0; pSettled=true;
@@ -825,15 +835,15 @@ function settlement(){
   G.turn++;
   const turnsLeft=3-G.p.turnsHere;
   const atDest=G.p.country&&CTRY[G.p.country]?.type==='dest';
-  const needsStab=atDest&&G.p.turnsHere>=3&&G.p.stab<5;
+  const needsStab=atDest&&G.p.turnsHere>=3&&G.p.stab<4;
   if(pSettled){
     setDesc(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Need ${3-G.p.tokens} more. Migrate to a new destination.`);
     setActions(`<button class="btn btn-primary" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else if(needsStab){
-    setDesc(`Turn ${G.turn-1} complete. 3 turns done but Stability ${G.p.stab}/10 is below 5 — not stable enough to settle. Build stability!`);
+    setDesc(`Turn ${G.turn-1} complete. 3 turns done but Stability ${G.p.stab}/10 is below 4 — not stable enough to settle. Stay longer to recover!`);
     setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else if(atDest&&G.p.turnsHere>0){
-    setDesc(`Turn ${G.turn-1} complete. ${turnsLeft} more turn${turnsLeft!==1?'s':''} in ${CTRY[G.p.country]?.name} to earn a token. Need Stability ≥ 5.`);
+    setDesc(`Turn ${G.turn-1} complete. ${turnsLeft} more turn${turnsLeft!==1?'s':''} in ${CTRY[G.p.country]?.name} to earn a token. Need Stability ≥ 4.`);
     setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else {
     setDesc(`Turn ${G.turn-1} complete. Migrate to a destination and stay 3 turns with Stability ≥ 5 to earn a settlement token.`);
