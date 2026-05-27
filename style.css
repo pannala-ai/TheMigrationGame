@@ -41,7 +41,7 @@ html,body{
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ── APP LAYOUT ─────────────────────────────────────── */
-#app{display:grid;grid-template-rows:52px 1fr 272px;height:100vh;width:100vw;overflow:hidden}
+#app{display:grid;grid-template-rows:52px 1fr 300px;height:100vh;width:100vw;overflow:hidden}
 
 /* ── HEADER ─────────────────────────────────────────── */
 #topBar{
@@ -145,11 +145,11 @@ html,body{
 #mapContainer{position:relative;overflow:hidden;background:#061424}
 #worldMap{width:100%;height:100%;display:block}
 
-/* Clearly visible ocean/land contrast */
-.ocean-bg{fill:#061424}
-.country-path{fill:#1c3352;stroke:#142640;stroke-width:0.4;cursor:default;transition:fill 0.3s}
-.country-path.game-orig{fill:#6a2228;stroke:#4a1418;stroke-width:0.9}
-.country-path.game-dest{fill:#1a3878;stroke:#102258;stroke-width:0.9}
+/* Ocean/land contrast */
+.ocean-bg{fill:#040e1c}
+.country-path{fill:#1e3a58;stroke:#152a42;stroke-width:0.5;cursor:default;transition:fill 0.3s}
+.country-path.game-orig{fill:#7a2830;stroke:#521820;stroke-width:1}
+.country-path.game-dest{fill:#1e4898;stroke:#123080;stroke-width:1}
 .country-path.dest-available{
   fill:#4eb8d4;stroke:#2a90b0;stroke-width:1.5;cursor:pointer;
   animation:destPulse 1.3s ease-in-out infinite;
@@ -167,19 +167,19 @@ html,body{
 .node-origin .node-glow{stroke:var(--coral)}
 .node-dest .node-glow{stroke:var(--teal)}
 @keyframes nodeGlow{0%,100%{opacity:0;stroke-width:2}50%{opacity:0.4;stroke-width:5}}
-.node-ring{fill:none;stroke-width:1.5}
+.node-ring{fill:none;stroke-width:2}
 .node-origin .node-ring{stroke:var(--coral)}
 .node-dest .node-ring{stroke:var(--teal)}
-.node-origin .node-dot{fill:var(--coral)}
-.node-dest .node-dot{fill:var(--teal)}
-.node-lbl{font-family:'Inter',sans-serif;font-size:7px;fill:rgba(240,232,216,0.8);text-anchor:middle;font-weight:700}
-.node-lbg{fill:rgba(6,20,36,0.8)}
-.pr-ring{fill:none;stroke-width:2.5;animation:prPulse 1.8s ease-in-out infinite}
+.node-origin .node-dot{fill:var(--coral);filter:drop-shadow(0 0 4px var(--coral))}
+.node-dest .node-dot{fill:var(--teal);filter:drop-shadow(0 0 4px var(--teal))}
+.node-lbl{font-family:'Inter',sans-serif;font-size:8px;fill:rgba(240,232,216,0.92);text-anchor:middle;font-weight:700}
+.node-lbg{fill:rgba(4,14,28,0.88)}
+.pr-ring{fill:none;stroke-width:3;animation:prPulse 1.8s ease-in-out infinite}
 .pr-p{stroke:var(--gold2)}.pr-b{stroke:var(--teal2)}
-@keyframes prPulse{0%,100%{opacity:0.9}50%{opacity:0.15}}
-.route-line{fill:none;stroke-dasharray:4 5;stroke-width:0.7;animation:routeFlow 3s linear infinite}
-.route-p{stroke:rgba(196,164,74,0.18)}.route-b{stroke:rgba(78,184,212,0.12)}
-@keyframes routeFlow{to{stroke-dashoffset:-9}}
+@keyframes prPulse{0%,100%{opacity:1}50%{opacity:0.1}}
+.route-line{fill:none;stroke-dasharray:5 6;stroke-width:1.2;animation:routeFlow 2.5s linear infinite}
+.route-p{stroke:rgba(196,164,74,0.38)}.route-b{stroke:rgba(78,184,212,0.28)}
+@keyframes routeFlow{to{stroke-dashoffset:-11}}
 .mdot{opacity:0;transition:opacity 0.15s}
 #mdot-p{fill:var(--gold2);filter:drop-shadow(0 0 7px var(--gold2))}
 #mdot-b{fill:var(--teal2);filter:drop-shadow(0 0 7px var(--teal2))}
@@ -218,18 +218,18 @@ html,body{
 /* Center action zone */
 .az-center{
   border-right:1px solid var(--border2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px 16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 16px;
 }
-#cardRow{display:flex;gap:10px;align-items:flex-start;justify-content:center;min-height:136px}
+#cardRow{display:flex;gap:12px;align-items:flex-start;justify-content:center;min-height:164px}
 #actionBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
 
 /* ── CARDS ───────────────────────────────────────────── */
-.card-wrap{width:130px;flex-shrink:0}
-.card-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);text-align:center;margin-bottom:5px}
+.card-wrap{width:145px;flex-shrink:0}
+.card-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);text-align:center;margin-bottom:6px}
 
 /* Single-face card (no 3D transforms needed — uses DOM swap for flip) */
 .card-face{
-  width:130px;height:136px;border-radius:12px;padding:10px;
+  width:145px;height:164px;border-radius:14px;padding:12px;
   position:relative;box-sizing:border-box;
 }
 
@@ -274,25 +274,26 @@ html,body{
 }
 
 /* Card content typography */
-.c-type{font-size:8px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.55);letter-spacing:0.6px;margin-bottom:6px}
+.c-type{font-size:8px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.6);letter-spacing:0.8px;margin-bottom:7px}
 .c-icon{
-  width:28px;height:28px;border-radius:7px;
+  width:30px;height:30px;border-radius:8px;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,0.18);color:#fff;
-  font-size:14px;font-weight:900;margin-bottom:7px;
+  background:rgba(255,255,255,0.2);color:#fff;
+  font-size:15px;font-weight:900;margin-bottom:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
-.c-title{font-size:12px;font-weight:800;line-height:1.2;margin-bottom:4px;color:#fff;letter-spacing:-0.3px}
-.c-desc{font-size:9px;color:rgba(255,255,255,0.7);line-height:1.45}
-.c-eff{margin-top:6px;font-size:12px;font-weight:800;color:#fff}
+.c-title{font-size:14px;font-weight:800;line-height:1.2;margin-bottom:5px;color:#fff;letter-spacing:-0.4px}
+.c-desc{font-size:10px;color:rgba(255,255,255,0.78);line-height:1.5}
+.c-eff{margin-top:8px;font-size:15px;font-weight:900;color:#fff;letter-spacing:-0.5px}
 .c-concept{
-  position:absolute;bottom:6px;right:6px;font-size:7px;font-weight:700;
-  text-transform:uppercase;background:rgba(0,0,0,0.3);border-radius:4px;
-  padding:2px 5px;color:rgba(255,255,255,0.75);letter-spacing:0.3px;
-  max-width:90%;text-align:right;
+  position:absolute;bottom:7px;right:7px;font-size:7px;font-weight:700;
+  text-transform:uppercase;background:rgba(0,0,0,0.35);border-radius:5px;
+  padding:3px 6px;color:rgba(255,255,255,0.8);letter-spacing:0.3px;
+  max-width:92%;text-align:right;
 }
 .c-unit{
-  display:inline-block;background:rgba(255,255,255,0.2);border-radius:3px;
-  padding:1px 4px;font-size:6px;font-weight:800;margin-right:3px;letter-spacing:0.3px;
+  display:inline-block;background:rgba(255,255,255,0.22);border-radius:3px;
+  padding:1px 4px;font-size:6.5px;font-weight:800;margin-right:3px;letter-spacing:0.3px;
 }
 
 /* ── BUTTONS ─────────────────────────────────────────── */

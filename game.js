@@ -190,9 +190,9 @@ function setAria(t){ document.getElementById('ariaText').textContent=t; }
 function setCards(html){ document.getElementById('cardRow').innerHTML=html; }
 function setActions(html){ document.getElementById('actionBtns').innerHTML=html; }
 function updateDecks(){
-  document.getElementById('pushCnt').textContent=G.decks.push.length||12;
+  document.getElementById('pushCnt').textContent=G.decks.push.length||14;
   document.getElementById('obsCnt').textContent=G.decks.obs.length||12;
-  document.getElementById('pullCnt').textContent=G.decks.pull.length||12;
+  document.getElementById('pullCnt').textContent=G.decks.pull.length||14;
 }
 function updatePresence(){
   if(!mapReady) return;
@@ -354,14 +354,14 @@ function buildNodes(){
     const g=ng.append('g').attr('class','game-node '+(isO?'node-origin':'node-dest')).attr('id','cn-'+key);
 
     // Presence rings
-    g.append('circle').attr('cx',x).attr('cy',y).attr('r',15).attr('class','pr-ring pr-p').attr('id','pr-p-'+key).style('display','none');
-    g.append('circle').attr('cx',x).attr('cy',y).attr('r',18).attr('class','pr-ring pr-b').attr('id','pr-b-'+key).style('display','none');
+    g.append('circle').attr('cx',x).attr('cy',y).attr('r',17).attr('class','pr-ring pr-p').attr('id','pr-p-'+key).style('display','none');
+    g.append('circle').attr('cx',x).attr('cy',y).attr('r',21).attr('class','pr-ring pr-b').attr('id','pr-b-'+key).style('display','none');
     // Glow
-    g.append('circle').attr('cx',x).attr('cy',y).attr('r',12).attr('class','node-glow');
+    g.append('circle').attr('cx',x).attr('cy',y).attr('r',14).attr('class','node-glow');
     // Ring
-    g.append('circle').attr('cx',x).attr('cy',y).attr('r',8).attr('class','node-ring').attr('fill','none');
+    g.append('circle').attr('cx',x).attr('cy',y).attr('r',10).attr('class','node-ring').attr('fill','none');
     // Dot
-    g.append('circle').attr('cx',x).attr('cy',y).attr('r',4.5).attr('class','node-dot');
+    g.append('circle').attr('cx',x).attr('cy',y).attr('r',5.5).attr('class','node-dot');
     // Label
     const lw=c.name.length*4+10;
     g.append('rect').attr('x',x-lw/2).attr('y',y+11).attr('width',lw).attr('height',11).attr('rx',2).attr('class','node-lbg');
@@ -459,8 +459,8 @@ function startGame(){
   if(!selCountry) return;
   const bots=ORIGINS.filter(k=>k!==selCountry);
   const botC=bots[Math.floor(Math.random()*bots.length)];
-  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=8; G.p.bonus=ORIGIN_BONUS[selCountry];
-  G.b.country=botC; G.b.visited=[botC]; G.b.stab=8;
+  G.p.country=selCountry; G.p.visited=[selCountry]; G.p.stab=6; G.p.bonus=ORIGIN_BONUS[selCountry];
+  G.b.country=botC; G.b.visited=[botC]; G.b.stab=7;
   G.decks.push=shuffle([...PUSH_DECK]);
   G.decks.obs=shuffle([...OBS_DECK]);
   G.decks.pull=shuffle([...PULL_DECK]);
@@ -735,7 +735,7 @@ function botAct(){
     setTimeout(settlement,400);
     return;
   }
-  const shouldMove=G.bMigrating||G.b.stab<3||Math.random()<0.35;
+  const shouldMove=G.bMigrating||G.b.stab<4||Math.random()<0.44;
   if(!shouldMove){
     addLog(`ARIA stays in ${CTRY[G.b.country]?.name}.`,'sys');
     setAria(`ARIA holds position in ${CTRY[G.b.country]?.name}. Stability: ${G.b.stab}/10. Progress: ${G.b.turnsHere}/3.`);
@@ -800,8 +800,8 @@ function settlement(){
   G.pMigrating=false; G.bMigrating=false;
 
   let pSettled=false, bSettled=false;
-  const pCanSettle=G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3&&!G.p.settledIn.includes(G.p.country);
-  const bCanSettle=G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3&&!G.b.settledIn.includes(G.b.country);
+  const pCanSettle=G.p.country&&CTRY[G.p.country]?.type==='dest'&&G.p.turnsHere>=3&&G.p.stab>=5&&!G.p.settledIn.includes(G.p.country);
+  const bCanSettle=G.b.country&&CTRY[G.b.country]?.type==='dest'&&G.b.turnsHere>=3&&G.b.stab>=4&&!G.b.settledIn.includes(G.b.country);
   if(pCanSettle){
     G.p.tokens++; G.p.turnsHere=0; pSettled=true;
     G.p.settledIn.push(G.p.country);
@@ -825,14 +825,18 @@ function settlement(){
   G.turn++;
   const turnsLeft=3-G.p.turnsHere;
   const atDest=G.p.country&&CTRY[G.p.country]?.type==='dest';
+  const needsStab=atDest&&G.p.turnsHere>=3&&G.p.stab<5;
   if(pSettled){
-    setDesc(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Need ${3-G.p.tokens} more to win.`);
+    setDesc(`Settlement token earned in ${CTRY[G.p.country]?.name}! (${G.p.tokens}/3) Need ${3-G.p.tokens} more. Migrate to a new destination.`);
     setActions(`<button class="btn btn-primary" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
+  } else if(needsStab){
+    setDesc(`Turn ${G.turn-1} complete. 3 turns done but Stability ${G.p.stab}/10 is below 5 — not stable enough to settle. Build stability!`);
+    setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else if(atDest&&G.p.turnsHere>0){
-    setDesc(`Turn ${G.turn-1} complete. ${turnsLeft} more turn${turnsLeft!==1?'s':''} in ${CTRY[G.p.country]?.name} to earn a token.`);
+    setDesc(`Turn ${G.turn-1} complete. ${turnsLeft} more turn${turnsLeft!==1?'s':''} in ${CTRY[G.p.country]?.name} to earn a token. Need Stability ≥ 5.`);
     setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   } else {
-    setDesc(`Turn ${G.turn-1} complete. Reach a destination and stay 3 turns to earn a settlement token.`);
+    setDesc(`Turn ${G.turn-1} complete. Migrate to a destination and stay 3 turns with Stability ≥ 5 to earn a settlement token.`);
     setActions(`<button class="btn btn-next" onclick="pushPhase()">Start Turn ${G.turn}</button>`);
   }
 }
