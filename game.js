@@ -63,8 +63,8 @@ const PUSH_DECK = [
   { icon:'W', title:'Water Scarcity Crisis',      effect:-1, desc:'Aquifers depleted. Tension rises.',              hug:'push',   must:false },
   { icon:'X', title:'Ethnic Conflict Erupts',     effect:-2, desc:'Intercommunal violence displaces thousands.',    hug:'forced', must:false },
   { icon:'I', title:'Infrastructure Collapses',   effect:-1, desc:'Roads, power, hospitals — all failing.',         hug:'push',   must:false },
-  { icon:'R', title:'Remittance Arrives',         effect: 2, desc:'Money from relatives abroad stabilizes you.',    hug:'remit',  must:false },
-  { icon:'S', title:'Ceasefire Holds',            effect: 1, desc:'Armed conflict pauses. Relief agencies arrive.', hug:'forced', must:false },
+  { icon:'R', title:'Remittance Arrives',         effect: 2, desc:'Money from relatives abroad stabilizes you.',    hug:'remit',  must:false, label:'Economic Support' },
+  { icon:'S', title:'Ceasefire Holds',            effect: 1, desc:'Armed conflict pauses. Relief agencies arrive.', hug:'forced', must:false, label:'Conflict Update'  },
   { icon:'F', title:'Crop Failure',               effect:-2, desc:'Harvest lost. Food insecurity looms.',           hug:'push',   must:false },
   { icon:'W', title:'Civil War',                  effect:-3, desc:'Armed factions seize control. You must flee.',   hug:'forced', must:true  }
 ];
@@ -211,9 +211,10 @@ function updatePresence(){
 
 // ── CARD HTML BUILDER ───────────────────────────────────────
 function cardInnerHTML(card, deckType){
-  // Correctly label special cards
+  // Use card's own label override if set, otherwise derive from deck type
   let typeLabel;
-  if(card.redirect) typeLabel='Destination Event';
+  if(card.label) typeLabel=card.label;
+  else if(card.redirect) typeLabel='Destination Event';
   else if(deckType==='push') typeLabel='Push Factor';
   else if(deckType==='obs') typeLabel='Obstacle';
   else typeLabel='Pull Factor';

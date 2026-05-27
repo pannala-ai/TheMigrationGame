@@ -236,10 +236,11 @@ html,body{
 .card-wrap{width:162px;flex-shrink:0}
 .card-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text2);text-align:center;margin-bottom:7px}
 
-/* Single-face card */
+/* Single-face card — flex column so concept badge always sits at bottom */
 .card-face{
   width:162px;height:188px;border-radius:16px;padding:14px;
   position:relative;box-sizing:border-box;
+  display:flex;flex-direction:column;
 }
 
 /* Card back (shown first, face-down) */
@@ -307,12 +308,13 @@ html,body{
 }
 .c-title{font-size:15px;font-weight:800;line-height:1.18;margin-bottom:6px;color:#fff;letter-spacing:-0.5px;text-shadow:0 1px 4px rgba(0,0,0,0.4)}
 .c-desc{font-size:10.5px;color:rgba(255,255,255,0.85);line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,0.3)}
-.c-eff{margin-top:9px;font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.6px;text-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.c-eff{margin-top:6px;font-size:16px;font-weight:900;color:#fff;letter-spacing:-0.6px;text-shadow:0 2px 6px rgba(0,0,0,0.4)}
 .c-concept{
-  position:absolute;bottom:8px;right:8px;font-size:7px;font-weight:700;
+  margin-top:auto;padding-top:5px;align-self:flex-end;
+  font-size:7px;font-weight:700;flex-shrink:0;
   text-transform:uppercase;background:rgba(0,0,0,0.4);border-radius:5px;
   padding:3px 6px;color:rgba(255,255,255,0.85);letter-spacing:0.4px;
-  max-width:90%;text-align:right;backdrop-filter:blur(2px);
+  max-width:100%;text-align:right;backdrop-filter:blur(2px);
 }
 .c-unit{
   display:inline-block;background:rgba(255,255,255,0.25);border-radius:3px;
@@ -469,7 +471,7 @@ html,body{
 @keyframes spotIn{from{opacity:0}to{opacity:1}}
 #spotCard{display:flex;flex-direction:column;align-items:center;gap:0}
 #spotLabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);margin-bottom:10px}
-#spotCardFace{border-radius:22px;padding:22px;width:220px;height:260px;position:relative;animation:spotCardIn 0.35s cubic-bezier(0.18,0.89,0.32,1.28) both}
+#spotCardFace{border-radius:22px;padding:22px;width:220px;height:260px;position:relative;animation:spotCardIn 0.35s cubic-bezier(0.18,0.89,0.32,1.28) both;display:flex;flex-direction:column}
 @keyframes spotCardIn{from{transform:scale(0.6) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 #spotCardFace .c-type{font-size:10px;margin-bottom:10px}
 #spotCardFace .c-icon{width:40px;height:40px;font-size:20px;border-radius:10px;margin-bottom:12px}
