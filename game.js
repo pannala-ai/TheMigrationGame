@@ -447,7 +447,11 @@ function buildStartScreen(){
       <div class="ss-cname">${c.name}</div>
       <div class="ss-creg">${c.region}</div>
       <div class="ss-stat-line">${c.stat}</div>
-      <div class="ss-bonus-lbl">${ob.name}</div>
+      <div class="ss-ability">
+        <span class="ss-ability-icon">${ob.icon}</span>
+        <div class="ss-bonus-lbl">${ob.name}</div>
+        <div class="ss-ability-desc">${ob.desc}</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -519,29 +523,38 @@ function doPushDraw(){
   G.bMigrating=bCard.must||G.b.stab<=0;
   if(pEff<0) flash('r'); else flash('g');
 
-  // Show both cards with flip animation
-  setCards(`
-    <div class="card-wrap" id="your-push"></div>
-    <div class="card-wrap" id="aria-push"></div>
-  `);
-  setTimeout(()=>{ revealCard('your-push',pCard,'push','Your Push'); },50);
-  setTimeout(()=>{ revealCard('aria-push',bCard,'push',"ARIA's Push"); },250);
-
   addLog(`Push: "${pCard.title}" (${pEff>=0?'+':''}${pEff} Stability)`,'push');
   addLog(`ARIA push: "${bCard.title}" (${bCard.effect>=0?'+':''}${bCard.effect} Stability)`,'push');
-  updateP(); updateA();
-  updateDecks();
+  updateP(); updateA(); updateDecks();
 
   const mustNote=G.pMigrating?' You must migrate immediately!':'';
-  setDesc(`Your stability: ${G.p.stab}/10.${mustNote} Stay or migrate?`);
-  // Dynamic ARIA commentary
   const ariaLines=G.b.tokens>=2?['My third token is within reach. Your chances are diminishing.','Settlement probability: 91%. This is nearly over.']:
     G.b.stab<3?['Stability critical. Recalculating migration vectors.','Crisis protocol. Forced migration sequence initiated.']:
     G.p.tokens>G.b.tokens?['You have an advantage. I am adjusting my strategy.','Unexpected player performance. Recalibrating.']:
     ['Analyzing optimal settlement pathway.','Processing migration patterns.','Calculating route efficiency.'];
   setAria(ariaLines[Math.floor(Math.random()*ariaLines.length)]+` Stability: ${G.b.stab}/10.`);
 
-  setTimeout(decisionPhase, 800);
+  // Spotlight: show YOUR push card full-screen first
+  showSpotlight(pCard,'push','Your Push Card',
+    `Effect: ${pEff>=0?'+':''}${pEff} Stability → now ${G.p.stab}/10`,
+    ()=>{
+      // Then show ARIA's card
+      showSpotlight(bCard,'push',"ARIA's Push Card",
+        `ARIA: ${bCard.effect>=0?'+':''}${bCard.effect} Stability → now ${G.b.stab}/10`,
+        ()=>{
+          // Show both cards small in the action zone, then go to decision
+          setCards(`
+            <div class="card-wrap" id="your-push"></div>
+            <div class="card-wrap" id="aria-push"></div>
+          `);
+          revealCard('your-push',pCard,'push','Your Push');
+          setTimeout(()=>revealCard('aria-push',bCard,'push',"ARIA's Push"),200);
+          setDesc(`Your stability: ${G.p.stab}/10.${mustNote} Stay or migrate?`);
+          setTimeout(decisionPhase,600);
+        }
+      );
+    }
+  );
 }
 
 function waitTurn(){
@@ -599,43 +612,54 @@ function doObstacleDraw(){
   G.pendingObsCard=card;
   addLog(`Obstacle: "${card.title}"`,'obs');
   seeConcept(card.hug);
-
-  // Keep existing push cards, add obstacle card
-  const pushCards=document.getElementById('cardRow').innerHTML;
-  setCards(pushCards+`<div class="card-wrap" id="your-obs"></div>`);
-  setTimeout(()=>{ revealCard('your-obs',card,'obs','Obstacle'); },50);
   updateDecks();
 
   const origin=G.p.visited[0];
+  // Calculate outcome before showing spotlight so context message is ready
+  let ctxMsg='';
   if(card.pass){
     let bonusSc=card.sc||0;
-    // Syria bonus: UN-protected migrants get +1 on all pass cards
     if(origin==='syria'&&bonusSc>=0) bonusSc+=1;
     if(bonusSc){ G.p.stab=clamp(G.p.stab+bonusSc,0,10); updateP(); }
-    flash('g');
-    setDesc(`"${card.title}" — path is clear! ${card.desc} Choose your destination.`);
-    setTimeout(()=>arrivalPhase_P(null), 700);
+    ctxMsg=`✓ Path is clear — choose your destination!${bonusSc?` +${bonusSc} Stability bonus`:''}`;
   } else if(card.eff==='lose_turn'){
-    // Honduras/Afghanistan bonus: visa denial costs 1 fewer turn
     let turns=card.val;
     if(origin==='honduras'||origin==='afghanistan') turns=Math.max(1,turns-1);
     G.pWait=turns; G.pMigrating=false;
-    flash('r');
-    const bonusTxt=(origin==='honduras'||origin==='afghanistan')&&turns<card.val?' (Origin ability reduced wait!)':'';
-    setDesc(`"${card.title}" — you lose ${turns} turn(s).${bonusTxt} ${card.desc}`);
-    addLog(`Lost ${turns} turn(s).`,'obs');
-    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },700);
+    ctxMsg=`✗ Blocked — lose ${turns} turn${turns>1?'s':''}${turns<card.val?' (ability reduced wait)':''}`;
   } else if(card.eff==='return'){
     G.pMigrating=false; G.p.turnsHere=0;
-    flash('r');
-    setDesc(`"${card.title}" — returned to ${CTRY[G.p.country]?.name}. ${card.desc}`);
-    addLog(`Returned to ${CTRY[G.p.country]?.name}.`,'obs');
-    setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },700);
+    ctxMsg=`✗ Returned to ${CTRY[G.p.country]?.name}`;
   } else {
-    flash('r');
-    setDesc(`"${card.title}" — ${card.desc} Choose an available destination.`);
-    setTimeout(()=>arrivalPhase_P(card.eff), 700);
+    ctxMsg=`⚠ Detour — some routes blocked`;
   }
+
+  showSpotlight(card,'obs','Your Obstacle Card', ctxMsg, ()=>{
+    // After dismissing spotlight, show card small + proceed
+    const pushCards=document.getElementById('cardRow').innerHTML;
+    setCards(pushCards+`<div class="card-wrap" id="your-obs"></div>`);
+    revealCard('your-obs',card,'obs','Obstacle');
+    if(card.pass){
+      flash('g');
+      setDesc(`"${card.title}" — path is clear! Choose your destination.`);
+      setTimeout(()=>arrivalPhase_P(null), 600);
+    } else if(card.eff==='lose_turn'){
+      const turns=G.pWait;
+      flash('r');
+      setDesc(`"${card.title}" — you lose ${turns} turn(s). ${card.desc}`);
+      addLog(`Lost ${turns} turn(s).`,'obs');
+      setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },600);
+    } else if(card.eff==='return'){
+      flash('r');
+      setDesc(`"${card.title}" — returned to ${CTRY[G.p.country]?.name}. ${card.desc}`);
+      addLog(`Returned to ${CTRY[G.p.country]?.name}.`,'obs');
+      setTimeout(()=>{ setActions(`<button class="btn btn-next" onclick="botDecision()">Watch ARIA's Move</button>`); },600);
+    } else {
+      flash('r');
+      setDesc(`"${card.title}" — ${card.desc} Choose an available destination.`);
+      setTimeout(()=>arrivalPhase_P(card.eff), 600);
+    }
+  });
 }
 
 function arrivalPhase_P(obstType){
@@ -701,27 +725,39 @@ function doPullDraw(country){
   seeConcept(chosen.hug);
   updateDecks();
 
-  const existing=document.getElementById('cardRow').innerHTML;
-  setCards(existing+`<div class="card-wrap" id="your-pull"></div>`);
-  const pullLbl=isVenezuela?'Pull Factor (Best of 2)':'Pull Factor';
-  setTimeout(()=>{ revealCard('your-pull',chosen,'pull',pullLbl); },50);
-
-  if(chosen.redirect && G.b.country===country){
-    flash('r');
-    addLog(`Overcrowded! ${CTRY[country]?.name} is at capacity. Intervening obstacle forces redirect.`,'obs');
-    seeConcept('intervening');
-    setDesc(`"${chosen.title}" — destination at capacity. Intervening obstacle — choose another.`);
-    setTimeout(()=>arrivalPhase_P(null), 700);
-    return;
-  }
+  // Compute effect before spotlight so context is ready
   let eff=chosen.effect||0;
-  // Nigeria bonus: positive pull card effects gain +1
-  if(origin==='nigeria'&&eff>0){ eff+=1; addLog(`Skills Premium bonus: +1 extra Stability.`,'pull'); }
-  if(eff){ G.p.stab=clamp(G.p.stab+eff,0,10); if(eff>0){G.p.statsGained+=eff; flash('g');} }
-  addLog(`Pull in ${CTRY[country]?.name}: "${chosen.title}" (${eff>=0?'+':''}${eff})`,'pull');
-  setDesc(`Arrived in ${CTRY[country]?.name}! Pull: "${chosen.title}" (${eff>=0?'+':''}${eff} Stability). Now watch ARIA's move.`);
-  updateP();
-  setTimeout(()=>{ setActions(`<button class="btn btn-teal" onclick="botDecision()">ARIA's Turn</button>`); },700);
+  let redirecting=false;
+  if(chosen.redirect && G.b.country===country){
+    redirecting=true;
+  } else {
+    if(origin==='nigeria'&&eff>0){ eff+=1; addLog(`Skills Premium bonus: +1 extra Stability.`,'pull'); }
+    if(eff){ G.p.stab=clamp(G.p.stab+eff,0,10); if(eff>0) G.p.statsGained+=eff; }
+  }
+
+  const pullLbl=isVenezuela?'Pull (Best of 2)':'Pull Factor';
+  const ctxMsg=redirecting
+    ? `⚠ ${CTRY[country]?.name} is overcrowded — choose another destination`
+    : `${eff>0?'+':''}${eff} Stability → now ${G.p.stab}/10`;
+
+  showSpotlight(chosen,'pull',`Arrived in ${CTRY[country]?.name}!`, ctxMsg, ()=>{
+    const existing=document.getElementById('cardRow').innerHTML;
+    setCards(existing+`<div class="card-wrap" id="your-pull"></div>`);
+    revealCard('your-pull',chosen,'pull',pullLbl);
+    updateP();
+    if(redirecting){
+      flash('r');
+      addLog(`Overcrowded! ${CTRY[country]?.name} at capacity. Intervening obstacle.`,'obs');
+      seeConcept('intervening');
+      setDesc(`"${chosen.title}" — destination at capacity. Choose another.`);
+      setTimeout(()=>arrivalPhase_P(null), 600);
+    } else {
+      if(eff>0) flash('g'); else if(eff<0) flash('r');
+      addLog(`Pull in ${CTRY[country]?.name}: "${chosen.title}" (${eff>=0?'+':''}${eff})`,'pull');
+      setDesc(`Arrived in ${CTRY[country]?.name}! Pull: "${chosen.title}" (${eff>=0?'+':''}${eff} Stability). Now watch ARIA's move.`);
+      setTimeout(()=>{ setActions(`<button class="btn btn-teal" onclick="botDecision()">ARIA's Turn →</button>`); },600);
+    }
+  });
 }
 
 // ── BOT AI ──────────────────────────────────────────────────
@@ -757,40 +793,52 @@ function botAct(){
   const obs=draw('obs');
   addLog(`ARIA obstacle: "${obs.title}"`,'obs');
   setAria(`ARIA drew: "${obs.title}". ${obs.pass?'Passable — migrating.':'Blocked.'}`);
-  setDesc(`ARIA obstacle: "${obs.title}" — ${obs.desc}`);
-  // Show ARIA's obstacle card
-  setCards(`<div class="card-wrap" id="a-obs-c"></div>`);
-  setTimeout(()=>revealCard('a-obs-c',obs,'obs',"ARIA Obstacle"),50);
+  setDesc(`ARIA draws their obstacle card...`);
   updateDecks();
-  if(!obs.pass){
-    if(obs.eff==='lose_turn') G.bWait=obs.val;
-    if(obs.eff==='return') G.b.turnsHere=0;
-    G.bMigrating=false;
-    setTimeout(settlement, 900);
-    return;
-  }
-  if(obs.sc) G.b.stab=clamp(G.b.stab+obs.sc,0,10);
-  const dest=botPickDest();
-  const from=G.b.country;
-  addLog(`ARIA → ${CTRY[dest]?.name}.`,'sys');
-  setDesc(`ARIA migrates to ${CTRY[dest]?.name}...`);
-  setAria(`ARIA migrates to ${CTRY[dest]?.name} (strategic weight: ${DEST_W[dest]}).`);
-  setTimeout(()=>animMove(from, dest, 'mdot-b', ()=>{
-    G.b.country=dest; G.b.turnsHere=0;
-    if(!G.b.visited.includes(dest)) G.b.visited.push(dest);
-    updatePresence();
-    const pc=draw('pull'); const eff=pc.effect||0;
-    G.b.stab=clamp(G.b.stab+eff,0,10);
-    addLog(`ARIA pull: "${pc.title}" (${eff>=0?'+':''}${eff})`,'pull');
-    setDesc(`ARIA arrived in ${CTRY[dest]?.name}. Pull: "${pc.title}". Processing settlement...`);
-    setAria(`ARIA pull in ${CTRY[dest]?.name}: "${pc.title}" (${eff>=0?'+':''}${eff}). Stability: ${G.b.stab}/10.`);
-    // Show ARIA's pull card
-    const existing=document.getElementById('cardRow').innerHTML;
-    setCards(existing+`<div class="card-wrap" id="a-pull-c"></div>`);
-    setTimeout(()=>revealCard('a-pull-c',pc,'pull',"ARIA Pull"),50);
-    updateA(); updateDecks();
-    setTimeout(settlement, 900);
-  }),800);
+
+  // Show ARIA's obstacle card via spotlight
+  showSpotlight(obs,'obs',"ARIA's Obstacle Card",
+    obs.pass?`✓ ARIA passes — heading to a destination`:`✗ ARIA is blocked this turn`,
+    ()=>{
+      setCards(`<div class="card-wrap" id="a-obs-c"></div>`);
+      revealCard('a-obs-c',obs,'obs',"ARIA Obstacle");
+      if(!obs.pass){
+        if(obs.eff==='lose_turn') G.bWait=obs.val;
+        if(obs.eff==='return') G.b.turnsHere=0;
+        G.bMigrating=false;
+        setDesc(`ARIA blocked: "${obs.title}". Processing settlement...`);
+        setTimeout(settlement, 700);
+        return;
+      }
+      if(obs.sc) G.b.stab=clamp(G.b.stab+obs.sc,0,10);
+      const dest=botPickDest();
+      const from=G.b.country;
+      addLog(`ARIA → ${CTRY[dest]?.name}.`,'sys');
+      setDesc(`ARIA migrates to ${CTRY[dest]?.name}...`);
+      setAria(`ARIA migrates to ${CTRY[dest]?.name} (weight: ${DEST_W[dest]}).`);
+      animMove(from, dest, 'mdot-b', ()=>{
+        G.b.country=dest; G.b.turnsHere=0;
+        if(!G.b.visited.includes(dest)) G.b.visited.push(dest);
+        updatePresence();
+        const pc=draw('pull'); const eff=pc.effect||0;
+        G.b.stab=clamp(G.b.stab+eff,0,10);
+        addLog(`ARIA pull: "${pc.title}" (${eff>=0?'+':''}${eff})`,'pull');
+        updateA(); updateDecks();
+        // Show ARIA's pull card via spotlight
+        showSpotlight(pc,'pull',`ARIA arrived in ${CTRY[dest]?.name}`,
+          `ARIA pull: ${eff>=0?'+':''}${eff} Stability → now ${G.b.stab}/10`,
+          ()=>{
+            const existing=document.getElementById('cardRow').innerHTML;
+            setCards(existing+`<div class="card-wrap" id="a-pull-c"></div>`);
+            revealCard('a-pull-c',pc,'pull',"ARIA Pull");
+            setAria(`ARIA pull in ${CTRY[dest]?.name}: "${pc.title}" (${eff>=0?'+':''}${eff}). Stability: ${G.b.stab}/10.`);
+            setDesc(`ARIA arrived in ${CTRY[dest]?.name}. Processing settlement...`);
+            setTimeout(settlement, 700);
+          }
+        );
+      });
+    }
+  );
 }
 
 function botPickDest(){
@@ -889,6 +937,22 @@ function endGame(winner){
     Starting in ${origin?.name||'your origin country'}, you experienced the push-pull model of migration first described by E.G. Ravenstein in 1885 and formalized by Everett Lee in 1966.
     ${dests.length?`Your journey through ${dests.join(', ')} illustrated how intervening obstacles — border walls, visa denials, dangerous seas — shape migration paths.`:''}
     The ${terms.length} geographic concepts you encountered — ${terms.slice(0,4).join(', ')}${terms.length>4?' and more':''} — form the vocabulary of migration geography studied worldwide.`;
+}
+
+// ── CARD SPOTLIGHT (UNO-style full-screen reveal) ────────────
+let _spotCb=null;
+function showSpotlight(card, deckType, label, contextMsg, cb){
+  const cls=deckType==='push'?'push-c':deckType==='obs'?'obs-c':'pull-c';
+  document.getElementById('spotLabel').textContent=label;
+  document.getElementById('spotCardFace').className=cls;
+  document.getElementById('spotCardFace').innerHTML=cardInnerHTML(card,deckType);
+  document.getElementById('spotContext').textContent=contextMsg||'';
+  document.getElementById('cardSpotlight').classList.add('on');
+  _spotCb=cb||null;
+}
+function dismissSpotlight(){
+  document.getElementById('cardSpotlight').classList.remove('on');
+  if(_spotCb){ const fn=_spotCb; _spotCb=null; setTimeout(fn,120); }
 }
 
 // ── MISC ─────────────────────────────────────────────────────

@@ -206,9 +206,12 @@ html,body{
 .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
 @keyframes dotBounce{0%,80%,100%{transform:translateY(0);opacity:0.3}40%{transform:translateY(-4px);opacity:1}}
 
-/* ── BOTTOM ACTION ZONE ──────────────────────────────── */
+/* ── BOTTOM ACTION ZONE — glassmorphism ─────────────── */
 #actionZone{
-  background:var(--bg2);border-top:1px solid var(--border2);
+  background:rgba(6,13,24,0.80);
+  backdrop-filter:blur(24px) saturate(1.6);
+  -webkit-backdrop-filter:blur(24px) saturate(1.6);
+  border-top:1px solid rgba(196,164,74,0.18);
   display:grid;grid-template-columns:210px 1fr 210px;
 }
 .az-col{padding:10px 12px;border-right:1px solid var(--border2);display:flex;flex-direction:column;gap:6px;overflow:hidden}
@@ -257,32 +260,40 @@ html,body{
   to{transform:scale(1) translateY(0);opacity:1}
 }
 
-/* Deck-specific card back colors */
-.push-back-d{background:#220a0a;border:1.5px solid rgba(216,96,96,0.25)}
-.obs-back-d{background:#080e24;border:1.5px solid rgba(78,184,212,0.2)}
-.pull-back-d{background:#071a0e;border:1.5px solid rgba(74,184,128,0.2)}
+/* Deck-specific card back colors — glassmorphic */
+.push-back-d{background:rgba(30,6,12,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(210,55,85,0.38)}
+.obs-back-d{background:rgba(6,10,30,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(56,100,220,0.32)}
+.pull-back-d{background:rgba(4,18,10,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(38,168,98,0.32)}
 
-/* Card face colors — bright readable gradients */
+/* Card face colors — glassmorphism */
 .push-c{
-  background:linear-gradient(150deg,#e06878 0%,#8c2030 100%);
-  box-shadow:0 8px 32px rgba(200,80,96,0.55),inset 0 1px 0 rgba(255,255,255,0.15);
-  border:1px solid rgba(255,160,160,0.25);
+  background:rgba(210,55,85,0.32);
+  backdrop-filter:blur(14px) saturate(1.8);
+  -webkit-backdrop-filter:blur(14px) saturate(1.8);
+  box-shadow:0 8px 36px rgba(190,40,70,0.5),inset 0 1.5px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.15);
+  border:1.5px solid rgba(255,130,150,0.45);
 }
 .obs-c{
-  background:linear-gradient(150deg,#5888e8 0%,#1c40c0 100%);
-  box-shadow:0 8px 32px rgba(72,120,216,0.55),inset 0 1px 0 rgba(255,255,255,0.15);
-  border:1px solid rgba(120,190,255,0.25);
+  background:rgba(56,100,220,0.30);
+  backdrop-filter:blur(14px) saturate(1.8);
+  -webkit-backdrop-filter:blur(14px) saturate(1.8);
+  box-shadow:0 8px 36px rgba(48,90,210,0.5),inset 0 1.5px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.15);
+  border:1.5px solid rgba(120,175,255,0.45);
 }
 .pull-c{
-  background:linear-gradient(150deg,#50d090 0%,#1a7040 100%);
-  box-shadow:0 8px 32px rgba(64,184,120,0.55),inset 0 1px 0 rgba(255,255,255,0.15);
-  border:1px solid rgba(120,230,160,0.25);
+  background:rgba(38,168,98,0.30);
+  backdrop-filter:blur(14px) saturate(1.8);
+  -webkit-backdrop-filter:blur(14px) saturate(1.8);
+  box-shadow:0 8px 36px rgba(38,160,90,0.5),inset 0 1.5px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.15);
+  border:1.5px solid rgba(100,235,155,0.45);
 }
-/* Glass shine overlay */
+/* Diagonal shine overlay on all glass cards — pointer-events:none ensures it doesn't block text */
 .push-c::after,.obs-c::after,.pull-c::after{
-  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:linear-gradient(150deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0) 55%);
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.18) 0%,rgba(255,255,255,0.04) 45%,transparent 100%);
 }
+/* All card children appear above the shine */
+.push-c>*,.obs-c>*,.pull-c>*{position:relative;z-index:1}
 
 /* Card content typography */
 .c-type{font-size:8.5px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.65);letter-spacing:1px;margin-bottom:8px}
@@ -402,7 +413,10 @@ html,body{
 .ss-cname{font-size:12px;font-weight:700;color:var(--text);letter-spacing:-0.2px}
 .ss-creg{font-size:9px;color:var(--text2);font-weight:500;text-transform:uppercase;margin-top:2px;letter-spacing:0.4px}
 .ss-stat-line{font-size:8px;color:var(--gold);font-weight:600;margin-top:4px;font-style:italic}
-.ss-bonus-lbl{font-size:8px;font-weight:700;text-transform:uppercase;color:var(--teal2);margin-top:3px;letter-spacing:0.3px}
+.ss-ability{margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);text-align:left}
+.ss-ability-icon{font-size:16px;display:block;margin-bottom:3px;line-height:1}
+.ss-bonus-lbl{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--teal2);letter-spacing:0.3px;margin-bottom:3px}
+.ss-ability-desc{font-size:8.5px;color:rgba(78,184,212,0.72);line-height:1.55;font-style:italic}
 .ap-tag{font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:16px}
 
 /* ── GAME OVER ───────────────────────────────────────── */
@@ -442,3 +456,28 @@ html,body{
 #flashOverlay{position:fixed;inset:0;pointer-events:none;z-index:80;opacity:0;transition:opacity 0.1s}
 .fr{background:rgba(216,96,96,0.12)}.fg{background:rgba(74,184,128,0.09)}
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:70}
+
+/* ── UNO-STYLE CARD SPOTLIGHT ────────────────────────── */
+#cardSpotlight{
+  position:fixed;inset:0;z-index:150;display:none;
+  background:rgba(4,10,20,0.88);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  animation:spotIn 0.2s ease-out;
+}
+#cardSpotlight.on{display:flex}
+@keyframes spotIn{from{opacity:0}to{opacity:1}}
+#spotCard{display:flex;flex-direction:column;align-items:center;gap:0}
+#spotLabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);margin-bottom:10px}
+#spotCardFace{border-radius:22px;padding:22px;width:220px;height:260px;position:relative;animation:spotCardIn 0.35s cubic-bezier(0.18,0.89,0.32,1.28) both}
+@keyframes spotCardIn{from{transform:scale(0.6) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+#spotCardFace .c-type{font-size:10px;margin-bottom:10px}
+#spotCardFace .c-icon{width:40px;height:40px;font-size:20px;border-radius:10px;margin-bottom:12px}
+#spotCardFace .c-title{font-size:20px;margin-bottom:8px;letter-spacing:-0.5px}
+#spotCardFace .c-desc{font-size:12px;line-height:1.55}
+#spotCardFace .c-eff{font-size:22px;margin-top:12px;letter-spacing:-0.8px}
+#spotCardFace .c-concept{font-size:8.5px;padding:4px 8px;bottom:10px;right:10px;z-index:2}
+#spotCardFace>*{position:relative;z-index:1}
+#spotDismiss{font-size:11px;color:var(--text2);font-weight:600;cursor:pointer;letter-spacing:0.5px;padding:10px 28px;border:1px solid var(--border2);border-radius:30px;background:rgba(255,255,255,0.05);transition:all 0.15s}
+#spotDismiss:hover{background:rgba(255,255,255,0.1);border-color:var(--border)}
+#spotContext{font-size:12px;color:var(--text2);font-weight:500;max-width:260px;text-align:center;line-height:1.6}
