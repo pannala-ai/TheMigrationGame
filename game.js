@@ -183,7 +183,8 @@ function setPhase(name, cls){
   const pill=document.getElementById('phasePill');
   const labels={push:'Push Phase',obstacle:'Obstacle',arrival:'Choose Destination',pull:'Pull Factor',aria:"ARIA's Turn",settlement:'Settlement',end:'Game Over'};
   pill.textContent='◆ '+(labels[name]||name);
-  pill.className='phase-pill '+(cls||name);
+  pill.className='phase-pill pop '+(cls||name);
+  setTimeout(()=>pill.classList.remove('pop'),400);
 }
 function setDesc(t,highlight=false){ const el=document.getElementById('phaseDesc'); if(!el) return; el.textContent=t; el.className='phase-desc'+(highlight?' highlight':''); }
 function setAria(t){ document.getElementById('ariaText').textContent=t; }
@@ -472,6 +473,7 @@ function startGame(){
   G.decks.obs=shuffle([...OBS_DECK]);
   G.decks.pull=shuffle([...PULL_DECK]);
   document.getElementById('startScreen').style.display='none';
+  document.getElementById('app').classList.add('game-active');
   updateP(); updateA(); updatePresence();
   updateDecks();
   const ob=G.p.bonus;
