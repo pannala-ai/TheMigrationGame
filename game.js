@@ -11,7 +11,7 @@ const CONCEPTS = {
   chain:        { name:'Chain Migration',         unit:'Unit 2', def:'Later migrants follow pioneer migrants along established routes, using existing diaspora networks and social capital.' },
   forced:       { name:'Forced Migration',        unit:'Unit 2', def:'Involuntary displacement due to conflict, persecution, or disaster. Protected by the 1951 UN Refugee Convention and 1967 Protocol.' },
   settlement:   { name:'Integration & Settlement',unit:'Unit 2', def:'Process of migrants establishing permanent residence and cultural integration in the host society.' },
-  remit:        { name:'Remittances',             unit:'Unit 2', def:'Money transferred by migrants to origin families. In 2023, $857 billion was remitted globally — surpassing total foreign aid.' },
+  remit:        { name:'Remittances',             unit:'Unit 2', def:'Money transferred by migrants to origin families. In 2024, an estimated $880 billion was remitted globally — nearly 3× total global foreign aid (World Bank, 2025).' },
   brain:        { name:'Brain Drain',             unit:'Unit 2', def:'Emigration of educated/skilled workers, depleting origin country human capital and slowing economic development.' },
   step:         { name:'Step Migration',          unit:'Unit 2', def:'Moving through progressively larger settlements or regions before reaching final destination (Ravenstein\'s 5th Law).' },
   intervening:  { name:'Intervening Opportunity', unit:'Unit 2', def:'A closer, accessible opportunity that redirects a migrant from their original destination (Samuel Stouffer, 1940).' },
@@ -21,18 +21,18 @@ const CONCEPTS = {
 
 // ── COUNTRY DATA ────────────────────────────────────────────
 const CTRY = {
-  mexico:      { name:'Mexico',      code:'MX', type:'origin', lat:23.6,  lon:-102.5, region:'Central America', topoId:484, stat:'4.8M emigrants/year', fact:'Largest source of US immigrants. Economic & gang-violence push.' },
-  honduras:    { name:'Honduras',    code:'HN', type:'origin', lat:14.1,  lon:-86.2,  region:'Central America', topoId:340, stat:'1 in 8 born abroad', fact:'Northern Triangle displacement driven by gang violence (MS-13).' },
-  syria:       { name:'Syria',       code:'SY', type:'origin', lat:35.0,  lon:38.3,   region:'Middle East',     topoId:760, stat:'6.8M refugees (2024)', fact:'Largest refugee crisis since WWII. Civil war began 2011.' },
-  nigeria:     { name:'Nigeria',     code:'NG', type:'origin', lat:9.1,   lon:8.7,    region:'West Africa',     topoId:566, stat:'1.9M in European diaspora', fact:'Brain drain: 75K doctors left since 1990. Boko Haram displacement.' },
-  venezuela:   { name:'Venezuela',   code:'VE', type:'origin', lat:7.5,   lon:-66.6,  region:'South America',   topoId:862, stat:'7.7M displaced (2024)', fact:'Largest displacement crisis in Western Hemisphere. Hyperinflation push.' },
-  afghanistan: { name:'Afghanistan', code:'AF', type:'origin', lat:33.9,  lon:67.7,   region:'Central Asia',    topoId:4,   stat:'5.7M refugees abroad', fact:'Taliban takeover (2021) triggered mass flight. 3rd largest refugee source.' },
-  usa:         { name:'USA',         code:'US', type:'dest',   lat:37.1,  lon:-98.5,  region:'North America',   topoId:840, stat:'50M foreign-born (15%)', fact:'HDI: 0.921. Strong job market, but complex visa system.' },
-  canada:      { name:'Canada',      code:'CA', type:'dest',   lat:58.0,  lon:-96.8,  region:'North America',   topoId:124, stat:'21% immigrant population', fact:'HDI: 0.935. Points-based immigration system, world leader in refugees.' },
-  germany:     { name:'Germany',     code:'DE', type:'dest',   lat:51.2,  lon:10.5,   region:'Western Europe',  topoId:276, stat:'16M immigrants (19%)', fact:'HDI: 0.942. Took 1M+ Syrian refugees in 2015. Strong asylum system.' },
-  sweden:      { name:'Sweden',      code:'SE', type:'dest',   lat:62.0,  lon:15.0,   region:'Northern Europe', topoId:752, stat:'20% foreign-born', fact:'HDI: 0.952. Universal healthcare, generous refugee quota system.' },
-  australia:   { name:'Australia',   code:'AU', type:'dest',   lat:-25.0, lon:133.8,  region:'Oceania',         topoId:36,  stat:'30% born abroad', fact:'HDI: 0.946. Skilled migration program. Strict offshore detention policy.' },
-  uae:         { name:'UAE',         code:'AE', type:'dest',   lat:23.4,  lon:53.8,   region:'Middle East',     topoId:784, stat:'88% expat workforce', fact:'HDI: 0.890. Economic magnet with no path to citizenship for migrants.' }
+  mexico:      { name:'Mexico',      code:'MX', type:'origin', lat:23.6,  lon:-102.5, region:'Central America', topoId:484, stat:'5.1M emigrants/yr (IOM 2025)', fact:'Largest source of US immigrants. Economic insecurity & cartel violence push factor.' },
+  honduras:    { name:'Honduras',    code:'HN', type:'origin', lat:14.1,  lon:-86.2,  region:'Central America', topoId:340, stat:'1 in 7 Hondurans lives abroad', fact:'Northern Triangle: gang violence & drought drive 300K+ annually. #1 per-capita migration corridor.' },
+  syria:       { name:'Syria',       code:'SY', type:'origin', lat:35.0,  lon:38.3,   region:'Middle East',     topoId:760, stat:'6.4M refugees (UNHCR 2024)', fact:'Post-Assad transition (Dec 2024): some returning, millions still displaced. Ongoing crisis.' },
+  nigeria:     { name:'Nigeria',     code:'NG', type:'origin', lat:9.1,   lon:8.7,    region:'West Africa',     topoId:566, stat:'2.1M in European diaspora (2025)', fact:'Brain drain: 80K+ doctors left since 1990. Boko Haram & economic push in north.' },
+  venezuela:   { name:'Venezuela',   code:'VE', type:'origin', lat:7.5,   lon:-66.6,  region:'South America',   topoId:862, stat:'7.9M displaced (R4V 2025)', fact:'Largest Western Hemisphere crisis. 25% of population displaced by hyperinflation & authoritarianism.' },
+  afghanistan: { name:'Afghanistan', code:'AF', type:'origin', lat:33.9,  lon:67.7,   region:'Central Asia',    topoId:4,   stat:'6.4M refugees (UNHCR 2024)', fact:'Taliban rule since 2021. Women barred from education & work — largest forced gender displacement.' },
+  usa:         { name:'USA',         code:'US', type:'dest',   lat:37.1,  lon:-98.5,  region:'North America',   topoId:840, stat:'51M foreign-born (15.6% — ACS 2024)', fact:'HDI: 0.927. World\'s #1 migration destination. H-1B & diversity visa system highly competitive.' },
+  canada:      { name:'Canada',      code:'CA', type:'dest',   lat:58.0,  lon:-96.8,  region:'North America',   topoId:124, stat:'23% immigrant population (2025)', fact:'HDI: 0.939. Express Entry points system. Accepted 485K permanent residents in 2023.' },
+  germany:     { name:'Germany',     code:'DE', type:'dest',   lat:51.2,  lon:10.5,   region:'Western Europe',  topoId:276, stat:'16.4M immigrants (20% — 2024)', fact:'HDI: 0.945. New skilled worker immigration law (2023). 1M+ Ukrainians added to Syrian diaspora.' },
+  sweden:      { name:'Sweden',      code:'SE', type:'dest',   lat:62.0,  lon:15.0,   region:'Northern Europe', topoId:752, stat:'20% foreign-born (SCB 2025)', fact:'HDI: 0.952. Tightened asylum rules 2024. Still among world\'s highest refugee resettlement per capita.' },
+  australia:   { name:'Australia',   code:'AU', type:'dest',   lat:-25.0, lon:133.8,  region:'Oceania',         topoId:36,  stat:'31% born abroad (ABS 2025)', fact:'HDI: 0.946. Net overseas migration hit record 518K in 2023. Points-based skilled visa system.' },
+  uae:         { name:'UAE',         code:'AE', type:'dest',   lat:23.4,  lon:53.8,   region:'Middle East',     topoId:784, stat:'89% expat workforce (2025)', fact:'HDI: 0.911. Golden Visa program launched 2022. Zero path to citizenship — purely economic migration.' }
 };
 
 const FLAG_COLORS = {
@@ -938,8 +938,8 @@ function endGame(winner){
   document.getElementById('ovSumm').innerHTML=`
     <div class="ov-summ-h">What This Game Demonstrated</div>
     Starting in ${origin?.name||'your origin country'}, you experienced the push-pull model of migration first described by E.G. Ravenstein in 1885 and formalized by Everett Lee in 1966.
-    ${dests.length?`Your journey through ${dests.join(', ')} illustrated how intervening obstacles — border walls, visa denials, dangerous seas — shape migration paths.`:''}
-    The ${terms.length} geographic concepts you encountered — ${terms.slice(0,4).join(', ')}${terms.length>4?' and more':''} — form the vocabulary of migration geography studied worldwide.`;
+    ${dests.length?`Your journey through ${dests.join(', ')} illustrated how intervening obstacles — border walls, visa denials, dangerous seas — shape real migration paths documented by UNHCR in 2024–2025.`:''}
+    The ${terms.length} geographic concepts you encountered — ${terms.slice(0,4).join(', ')}${terms.length>4?' and more':''} — are drawn directly from AP Human Geography Unit 2 & 3 content and reflect the lived reality of the 120+ million forcibly displaced people worldwide as of 2025 (UNHCR Global Trends).`;
 }
 
 // ── CARD SPOTLIGHT (UNO-style full-screen reveal) ────────────
